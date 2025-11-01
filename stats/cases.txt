@@ -56,3 +56,5 @@ jpamb.cases.Simple.multiError:(Z)I                           (false) -> assertio
 jpamb.cases.Simple.multiError:(Z)I                           (true) -> divide by zero
 jpamb.cases.Tricky.collatz:(I)V                              (0) -> assertion error
 jpamb.cases.Tricky.collatz:(I)V                              (24) -> ok
+jpamb.cases.Strings.assertEqual:(S)V                         ("Hello, World!") -> ok
+jpamb.cases.Strings.assertEqual:(S)V                         ("Hello, World") -> assertion error
