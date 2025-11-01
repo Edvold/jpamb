@@ -2,6 +2,7 @@ import jpamb
 from jpamb import jvm
 from dataclasses import dataclass
 import numpy
+import virtual_methods
 
 import sys
 from loguru import logger
@@ -112,7 +113,13 @@ def step(state: State) -> State | str:
     logger.debug(f"STEP {opr}\n{state}")
     match opr:
         case jvm.Push(value=v):
-            frame.stack.push(v)
+            match v.type:
+                case jvm.Reference():
+                    idx = state.heap_append(v.value)
+                    frame.stack.push(jvm.Value.reference(idx))
+                case _:
+                    frame.stack.push(v)
+
             frame.pc += 1
             return state
         case jvm.Load(type=type, index=idx):
@@ -273,7 +280,7 @@ def step(state: State) -> State | str:
                             case _:
                                 raise NotImplementedError(f"Don't know how to handle arrays of type {v.type.contains} passed as input")
 
-                        state.heap_append(jvm.Value.array(v.type.contains, value))
+                        idx = state.heap_append(jvm.Value.array(v.type.contains, value))
                         v = jvm.Value.reference(idx)
                     case _:
                         raise NotImplementedError(f"Don't know how to handle {v}")
@@ -282,6 +289,46 @@ def step(state: State) -> State | str:
             frame.pc += 1
             state.frames.push(new_frame)
             return state
+        case jvm.InvokeVirtual(method=m):
+            match m.classname.name:
+                case "java/lang/String":
+                    match m.extension.name:
+                        case "length":
+                            ref = frame.stack.pop()
+                            assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                            v = state.heap[ref.value]
+                            result = jvm.Value.int(virtual_methods.stringLength(v))
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+                        case "charAt":
+                            index = frame.stack.pop()
+                            assert index.type == jvm.Int(), f"Expected int, got {index.type}"
+                            ref = frame.stack.pop()
+                            assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                            v = state.heap[ref.value]
+                            result = virtual_methods.stringCharAt(v, index.value)
+                            if result == "StringIndexOutOfBoundsException":
+                                return result
+                            frame.pc += 1
+                            frame.stack.push(jvm.Value.char(result))
+                            return state
+                        case "equals":
+                            ref2 = frame.stack.pop()
+                            assert ref2.type == jvm.Reference(), f"Expected reference, got {ref2.type}"
+                            v2 = state.heap[ref2.value]
+                            ref1 = frame.stack.pop()
+                            assert ref1.type == jvm.Reference(), f"Expected reference, got {ref1.type}"
+                            v1 = state.heap[ref1.value]
+                            result = jvm.Value.int(1 if virtual_methods.stringEquals(v1, v2) else 0)
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+                        case name:
+                            raise NotImplementedError(f"Don't know how to handle String method \"{name}\"")
+                case c:
+                    raise NotImplementedError(f"Don't know how to handle invokevirtual of classname \"{c}\"")
+
         case jvm.Throw():
             v1 = frame.stack.pop()
             if state.heap[v1.value] == "java/lang/AssertionError":
@@ -385,10 +432,14 @@ def execute(methodid, input):
                 idx = heap_items
                 heap_items += 1
                 v = jvm.Value.reference(idx)
+            case jvm.Value(type=jvm.String(), value=value):
+                heap[heap_items] = value
+                idx = heap_items
+                heap_items += 1
+                v = jvm.Value.reference(idx)
             case _:
                 raise NotImplementedError(f"Don't know how to handle {v}")
         frame.locals[i] = v
-
     state = State(heap, heap_items, Stack.empty().push(frame))
 
     for x in range(100000):

@@ -104,6 +104,8 @@ class Type(ABC):
                     r = Float()
                 case "D":
                     r = Double()
+                case "P":
+                    r = String()
                 case "[":  # ]
                     stack.append(Array)
                     i += 1
@@ -143,12 +145,18 @@ class Type(ABC):
                     return Reference()
                 case "boolean":
                     return Boolean()
+                case "string":
+                    return Reference()
         if "base" in json:
             return Type.from_json(json["base"])
         if "kind" in json:
             match json["kind"]:
                 case "array":
                     return Array(Type.from_json(json["type"]))
+                case "class":
+                    match json["name"]:
+                        case "java/lang/String": 
+                            return String()
                 case kind:
                     raise NotImplementedError(
                         f"Unknown kind {kind}, in Type.from_json: {json!r}"
@@ -333,6 +341,25 @@ class Array(Type):
 
     def math(self):
         return f"array {self.contains.math()}"
+
+@dataclass(frozen=True, order=True)
+class String(Type):
+    """
+    A reference to a string
+    """
+
+    _instance = None
+
+    def __new__(cls) -> "String":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def encode(self):
+        return "P"
+
+    def math(self):
+        return "string"
 
 
 @dataclass(frozen=True)
@@ -601,6 +628,8 @@ class Value:
                         return f"[C:{chars}]"
                     case _:
                         raise NotImplementedError()
+            case String():
+                return f'"{self.value}"'
             case _:
                 raise NotImplementedError(f"Cannot encode {self.type}")
 
@@ -624,6 +653,10 @@ class Value:
     @classmethod
     def reference(cls, index: int) -> Self:
         return cls(Reference(), index)
+
+    @classmethod
+    def string(cls, s: str) -> Self:
+        return cls(String(), s)
 
     @classmethod
     def from_json(cls, json: dict | None) -> Self:
@@ -664,6 +697,7 @@ class ValueParser:
             ("INT", r"-?\d+"),
             ("BOOL", r"true|false"),
             ("CHAR", r"'[^']'"),
+            ("STRING", r'"[^"]*"'),
             ("COMMA", r","),
             ("SKIP", r"[ \t]+"),
         ]
@@ -713,6 +747,8 @@ class ValueParser:
                 return Value.boolean(self.parse_bool())
             case "OPEN_ARRAY":
                 return self.parse_array()
+            case "STRING":
+                return Value.string(self.parse_string())
         self.expected("char")
 
     def parse_int(self):
@@ -726,6 +762,10 @@ class ValueParser:
     def parse_char(self):
         tok = self.expect("CHAR")
         return tok.value[1]
+    
+    def parse_string(self):
+        tok = self.expect("STRING")
+        return tok.value[1:-1]
 
     def parse_array(self):
         key = self.expect("OPEN_ARRAY")
