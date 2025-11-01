@@ -4,7 +4,112 @@
     "super"
   ],
   "annotations": [],
-  "bootstrapmethods": [],
+  "bootstrapmethods": [
+    {
+      "index": 0,
+      "method": {
+        "args": [
+          {
+            "type": "string",
+            "value": "\u0001\u0001"
+          }
+        ],
+        "handle": {
+          "handletype": "method",
+          "kind": "static",
+          "method": {
+            "args": [
+              {
+                "kind": "class",
+                "name": "java/lang/invoke/MethodHandles$Lookup"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/invoke/MethodType"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              {
+                "kind": "array",
+                "type": {
+                  "kind": "class",
+                  "name": "java/lang/Object"
+                }
+              }
+            ],
+            "is_interface": false,
+            "name": "makeConcatWithConstants",
+            "ref": {
+              "kind": "class",
+              "name": "java/lang/invoke/StringConcatFactory"
+            },
+            "returns": {
+              "kind": "class",
+              "name": "java/lang/invoke/CallSite"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "method": {
+        "args": [
+          {
+            "type": "string",
+            "value": "Hello \u0001"
+          }
+        ],
+        "handle": {
+          "handletype": "method",
+          "kind": "static",
+          "method": {
+            "args": [
+              {
+                "kind": "class",
+                "name": "java/lang/invoke/MethodHandles$Lookup"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/invoke/MethodType"
+              },
+              {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              {
+                "kind": "array",
+                "type": {
+                  "kind": "class",
+                  "name": "java/lang/Object"
+                }
+              }
+            ],
+            "is_interface": false,
+            "name": "makeConcatWithConstants",
+            "ref": {
+              "kind": "class",
+              "name": "java/lang/invoke/StringConcatFactory"
+            },
+            "returns": {
+              "kind": "class",
+              "name": "java/lang/invoke/CallSite"
+            }
+          }
+        }
+      }
+    }
+  ],
   "enclosingmethod": null,
   "fields": [
     {
@@ -22,7 +127,18 @@
       "value": null
     }
   ],
-  "innerclasses": [],
+  "innerclasses": [
+    {
+      "access": [
+        "public",
+        "static",
+        "final"
+      ],
+      "class": "java/lang/invoke/MethodHandles$Lookup",
+      "name": "Lookup",
+      "outer": "java/lang/invoke/MethodHandles"
+    }
+  ],
   "interfaces": [],
   "methods": [
     {
@@ -705,6 +821,411 @@
       "default": null,
       "exceptions": [],
       "name": "assertEqualDirectly",
+      "params": [
+        {
+          "annotations": [],
+          "type": {
+            "annotations": [],
+            "args": [],
+            "inner": null,
+            "kind": "class",
+            "name": "java/lang/String"
+          },
+          "visible": true
+        }
+      ],
+      "returns": {
+        "annotations": [],
+        "type": null
+      },
+      "typeparams": []
+    },
+    {
+      "access": [
+        "public",
+        "static"
+      ],
+      "annotations": [],
+      "code": {
+        "annotations": [],
+        "bytecode": [
+          {
+            "offset": 0,
+            "opr": "push",
+            "value": {
+              "type": "string",
+              "value": "Hello "
+            }
+          },
+          {
+            "index": 1,
+            "offset": 2,
+            "opr": "store",
+            "type": "ref"
+          },
+          {
+            "index": 1,
+            "offset": 3,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "index": 0,
+            "offset": 4,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "dynamic",
+            "index": 0,
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                },
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                }
+              ],
+              "name": "makeConcatWithConstants",
+              "returns": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 5,
+            "opr": "invoke"
+          },
+          {
+            "index": 2,
+            "offset": 10,
+            "opr": "store",
+            "type": "ref"
+          },
+          {
+            "field": {
+              "class": "jpamb/cases/Strings",
+              "name": "$assertionsDisabled",
+              "type": "boolean"
+            },
+            "offset": 11,
+            "opr": "get",
+            "static": true
+          },
+          {
+            "condition": "ne",
+            "offset": 14,
+            "opr": "ifz",
+            "target": 16
+          },
+          {
+            "index": 2,
+            "offset": 17,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "offset": 18,
+            "opr": "push",
+            "value": {
+              "type": "string",
+              "value": "Hello World!"
+            }
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/Object"
+                }
+              ],
+              "name": "equals",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": "boolean"
+            },
+            "offset": 20,
+            "opr": "invoke"
+          },
+          {
+            "condition": "ne",
+            "offset": 23,
+            "opr": "ifz",
+            "target": 16
+          },
+          {
+            "class": "java/lang/AssertionError",
+            "offset": 26,
+            "opr": "new"
+          },
+          {
+            "offset": 29,
+            "opr": "dup",
+            "words": 1
+          },
+          {
+            "access": "special",
+            "method": {
+              "args": [],
+              "is_interface": false,
+              "name": "<init>",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/AssertionError"
+              },
+              "returns": null
+            },
+            "offset": 30,
+            "opr": "invoke"
+          },
+          {
+            "offset": 33,
+            "opr": "throw"
+          },
+          {
+            "offset": 34,
+            "opr": "return",
+            "type": null
+          }
+        ],
+        "exceptions": [],
+        "lines": [
+          {
+            "line": 21,
+            "offset": 0
+          },
+          {
+            "line": 22,
+            "offset": 2
+          },
+          {
+            "line": 24,
+            "offset": 6
+          },
+          {
+            "line": 25,
+            "offset": 16
+          }
+        ],
+        "max_locals": 3,
+        "max_stack": 2,
+        "stack_map": [
+          {
+            "index": 16,
+            "info": [
+              {
+                "ref": {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                },
+                "type": "object"
+              },
+              {
+                "ref": {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                },
+                "type": "object"
+              }
+            ],
+            "type": "append_frame"
+          }
+        ]
+      },
+      "default": null,
+      "exceptions": [],
+      "name": "assertConcatVars",
+      "params": [
+        {
+          "annotations": [],
+          "type": {
+            "annotations": [],
+            "args": [],
+            "inner": null,
+            "kind": "class",
+            "name": "java/lang/String"
+          },
+          "visible": true
+        }
+      ],
+      "returns": {
+        "annotations": [],
+        "type": null
+      },
+      "typeparams": []
+    },
+    {
+      "access": [
+        "public",
+        "static"
+      ],
+      "annotations": [],
+      "code": {
+        "annotations": [],
+        "bytecode": [
+          {
+            "index": 0,
+            "offset": 0,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "dynamic",
+            "index": 1,
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                }
+              ],
+              "name": "makeConcatWithConstants",
+              "returns": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 1,
+            "opr": "invoke"
+          },
+          {
+            "index": 1,
+            "offset": 6,
+            "opr": "store",
+            "type": "ref"
+          },
+          {
+            "field": {
+              "class": "jpamb/cases/Strings",
+              "name": "$assertionsDisabled",
+              "type": "boolean"
+            },
+            "offset": 7,
+            "opr": "get",
+            "static": true
+          },
+          {
+            "condition": "ne",
+            "offset": 10,
+            "opr": "ifz",
+            "target": 13
+          },
+          {
+            "index": 1,
+            "offset": 13,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "offset": 14,
+            "opr": "push",
+            "value": {
+              "type": "string",
+              "value": "Hello World!"
+            }
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/Object"
+                }
+              ],
+              "name": "equals",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": "boolean"
+            },
+            "offset": 16,
+            "opr": "invoke"
+          },
+          {
+            "condition": "ne",
+            "offset": 19,
+            "opr": "ifz",
+            "target": 13
+          },
+          {
+            "class": "java/lang/AssertionError",
+            "offset": 22,
+            "opr": "new"
+          },
+          {
+            "offset": 25,
+            "opr": "dup",
+            "words": 1
+          },
+          {
+            "access": "special",
+            "method": {
+              "args": [],
+              "is_interface": false,
+              "name": "<init>",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/AssertionError"
+              },
+              "returns": null
+            },
+            "offset": 26,
+            "opr": "invoke"
+          },
+          {
+            "offset": 29,
+            "opr": "throw"
+          },
+          {
+            "offset": 30,
+            "opr": "return",
+            "type": null
+          }
+        ],
+        "exceptions": [],
+        "lines": [
+          {
+            "line": 28,
+            "offset": 0
+          },
+          {
+            "line": 29,
+            "offset": 3
+          },
+          {
+            "line": 30,
+            "offset": 13
+          }
+        ],
+        "max_locals": 2,
+        "max_stack": 2,
+        "stack_map": [
+          {
+            "index": 13,
+            "info": [
+              {
+                "ref": {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                },
+                "type": "object"
+              }
+            ],
+            "type": "append_frame"
+          }
+        ]
+      },
+      "default": null,
+      "exceptions": [],
+      "name": "assertConcatConstants",
       "params": [
         {
           "annotations": [],

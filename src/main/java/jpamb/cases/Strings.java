@@ -17,4 +17,16 @@ public class Strings {
         assert t.equals(s);
     }
 
+    public static void assertConcatVars(String s) {
+        String t = "Hello ";
+        String u = t + s;
+
+        assert u.equals("Hello World!");
+    }
+
+    public static void assertConcatConstants(String s) {
+        String j = "Hello " + s;
+        assert j.equals("Hello World!");
+    }
+
 }

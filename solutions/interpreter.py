@@ -3,13 +3,13 @@ from jpamb import jvm
 from dataclasses import dataclass
 import numpy
 import virtual_methods
+import dynamic_methods
 
 import sys
 from loguru import logger
 
 logger.remove()
 logger.add(sys.stderr, format="[{level}] {message}")
-
 
 @dataclass
 class PC:
@@ -328,6 +328,32 @@ def step(state: State) -> State | str:
                             raise NotImplementedError(f"Don't know how to handle String method \"{name}\"")
                 case c:
                     raise NotImplementedError(f"Don't know how to handle invokevirtual of classname \"{c}\"")
+        case jvm.InvokeDynamic(method=m):
+            # NOTE: this is very hacky
+
+            # find bootstrap entry in the class that contains the currently executing method
+            cls_json = suite.findclass(frame.pc.method.classname) 
+            bm = cls_json["bootstrapmethods"][opr.index]
+
+            match m.classname.name:
+                case "makeConcatWithConstants":
+                    args = [frame.stack.pop() for _ in range(len(m.extension.params))][::-1]  # pop all arguments and reverse to get the right order
+                    
+                    # TODO: handle non-reference types
+                    args = [state.heap[arg.value] for arg in args]
+
+                    recipe = bm["method"]["args"][0]["value"]
+
+                    # TODO: makeConcatWithConstants should probably have access to the jvm types in some format
+                    # whether that being jvm.Type or having the args as tuples of (type_repr, value)
+                    # because python e.g. does not distinguish between integer types like JVM does
+                    result = dynamic_methods.makeConcatWithConstants(recipe, args)
+                    idx = state.heap_append(result)
+                    frame.stack.push(jvm.Value.reference(idx))
+                    frame.pc += 1
+                    return state                    
+                case c:
+                    raise NotImplementedError(f"Don't know how to handle invokedynamic of classname \"{c}\"")
 
         case jvm.Throw():
             v1 = frame.stack.pop()

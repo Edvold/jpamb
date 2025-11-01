@@ -60,3 +60,7 @@ jpamb.cases.Strings.assertEqualManually:(P)V                 ("Hello World!") ->
 jpamb.cases.Strings.assertEqualManually:(P)V                 ("Hello World") -> assertion error
 jpamb.cases.Strings.assertEqualDirectly:(P)V                 ("Hello World!") -> ok
 jpamb.cases.Strings.assertEqualDirectly:(P)V                 ("Hello World") -> assertion error
+jpamb.cases.Strings.assertConcatVars:(P)V                    ("World!") -> ok
+jpamb.cases.Strings.assertConcatVars:(P)V                    ("World!") -> ok
+jpamb.cases.Strings.assertConcatConstants:(P)V               ("World!") -> ok
+jpamb.cases.Strings.assertConcatConstants:(P)V               ("World") -> assertion error

@@ -157,6 +157,12 @@ class Type(ABC):
                     match json["name"]:
                         case "java/lang/String": 
                             return String()
+                        case "java/lang/Object":
+                            return Object(ClassName.decode("java.lang.Object"))
+                        case name:
+                            raise NotImplementedError(
+                                f"Unknown class name {name}, in Type.from_json: {json!r}"
+                            )
                 case kind:
                     raise NotImplementedError(
                         f"Unknown kind {kind}, in Type.from_json: {json!r}"
@@ -565,8 +571,12 @@ class AbsMethodID(Absolute[MethodID]):
 
     @classmethod
     def from_json(cls, json: dict) -> "Self":
+
+        # Invoke dynamic doesn't have a "ref" field but instead uses the "name" field directly
+        classname = ClassName.decode(json["ref"]["name"]) if "ref" in json else ClassName.decode(json["name"])
+
         return cls(
-            classname=ClassName.decode(json["ref"]["name"]),
+            classname=classname,
             extension=MethodID(
                 name=json["name"],
                 params=ParameterType.from_json(json["args"]),

@@ -306,6 +306,17 @@ class Suite:
         else:
             raise IndexError(f"Could not find {methodid}")
         return method
+    
+    def find_bootstrap_methods(self, classname) -> jvm:
+        bootstrap_methods = self.findclass(classname)["bootstrapmethods"]
+        
+        bootstrap = dict()
+        for method in bootstrap_methods:
+            index = method["index"]
+            abs_method_id = jvm.AbsMethodID.from_json(method["method"])
+            bootstrap[index] = abs_method_id
+
+        return method
 
     def method_opcodes(self, method: jvm.Absolute[jvm.MethodID]) -> list[jvm.Opcode]:
         for op in self.findmethod(method)["code"]["bytecode"]:
