@@ -376,6 +376,10 @@ def step(state: State) -> State | str:
                 return "null pointer"
 
             arr = state.heap[ref.value]
+
+            if arr == None:
+                return "null pointer"
+            
             assert v.type == arr.type.contains, f"Expected {arr.type}, got {v.type}"
             if len(arr.value) <= idx.value:
                 return "out of bounds"
@@ -419,8 +423,13 @@ def step(state: State) -> State | str:
             
             if ref.value == None:
                 return "null pointer"
+            
+            arr = state.heap[ref.value]
 
-            frame.stack.push(jvm.Value.int(len(state.heap[ref.value].value)))
+            if arr == None:
+                return "null pointer"
+
+            frame.stack.push(jvm.Value.int(len(arr.value)))
 
             frame.pc += 1
             return state
@@ -458,7 +467,11 @@ def execute(methodid, input):
                 idx = heap_items
                 heap_items += 1
                 v = jvm.Value.reference(idx)
-            case jvm.Value(type=jvm.String(), value=value):
+            case jvm.Value(type=jvm.Object(name), value=value):
+                if name.name != "java/lang/String":
+                    raise NotImplementedError("Don't know how to handle objects of name {name.name}")
+               
+                value = value[1:-1]  # Strings keep their quotations marks from parser
                 heap[heap_items] = value
                 idx = heap_items
                 heap_items += 1

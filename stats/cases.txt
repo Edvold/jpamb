@@ -56,11 +56,11 @@ jpamb.cases.Simple.multiError:(Z)I                           (false) -> assertio
 jpamb.cases.Simple.multiError:(Z)I                           (true) -> divide by zero
 jpamb.cases.Tricky.collatz:(I)V                              (0) -> assertion error
 jpamb.cases.Tricky.collatz:(I)V                              (24) -> ok
-jpamb.cases.Strings.assertEqualManually:(P)V                 ("Hello World!") -> ok
-jpamb.cases.Strings.assertEqualManually:(P)V                 ("Hello World") -> assertion error
-jpamb.cases.Strings.assertEqualDirectly:(P)V                 ("Hello World!") -> ok
-jpamb.cases.Strings.assertEqualDirectly:(P)V                 ("Hello World") -> assertion error
-jpamb.cases.Strings.assertConcatVars:(P)V                    ("World!") -> ok
-jpamb.cases.Strings.assertConcatVars:(P)V                    ("World!") -> ok
-jpamb.cases.Strings.assertConcatConstants:(P)V               ("World!") -> ok
-jpamb.cases.Strings.assertConcatConstants:(P)V               ("World") -> assertion error
+jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V                 ("Hello World!") -> ok
+jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V                 ("Hello World") -> assertion error
+jpamb.cases.Strings.assertEqualDirectly:(Ljava/lang/String;)V                 ("Hello World!") -> ok
+jpamb.cases.Strings.assertEqualDirectly:(Ljava/lang/String;)V                 ("Hello World") -> assertion error
+jpamb.cases.Strings.assertConcatVars:(Ljava/lang/String;)V                    ("World!") -> ok
+jpamb.cases.Strings.assertConcatVars:(Ljava/lang/String;)V                    ("World!") -> ok
+jpamb.cases.Strings.assertConcatConstants:(Ljava/lang/String;)V               ("World!") -> ok
+jpamb.cases.Strings.assertConcatConstants:(Ljava/lang/String;)V               ("World") -> assertion error
