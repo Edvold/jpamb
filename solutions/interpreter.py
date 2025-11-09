@@ -282,6 +282,8 @@ def step(state: State) -> State | str:
 
                         idx = state.heap_append(jvm.Value.array(v.type.contains, value))
                         v = jvm.Value.reference(idx)
+                    case jvm.Value(type=jvm.Reference(), value=value):
+                        pass
                     case _:
                         raise NotImplementedError(f"Don't know how to handle {v}")
                 new_frame.locals[i] = v
@@ -309,7 +311,7 @@ def step(state: State) -> State | str:
                             v = state.heap[ref.value]
                             result = virtual_methods.stringCharAt(v, index.value)
                             if result == "StringIndexOutOfBoundsException":
-                                return result
+                                return "out of bounds"
                             frame.pc += 1
                             frame.stack.push(jvm.Value.char(result))
                             return state
@@ -324,6 +326,54 @@ def step(state: State) -> State | str:
                             frame.pc += 1
                             frame.stack.push(result)
                             return state
+                        case "substring":
+                            if len(m.extension.params) == 1:
+                                val = frame.stack.pop()
+                                assert val.type == jvm.Int(), f"Expected integer, got {val.type}"
+                                ref = frame.stack.pop()
+                                assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                                s = state.heap[ref.value]
+                                result = virtual_methods.stringSubstring(s, val.value)
+                            else:
+                                higher = frame.stack.pop()
+                                assert higher.type == jvm.Int(), f"Expected integer, got {higher.type}"
+                                lower = frame.stack.pop()
+                                assert lower.type == jvm.Int(), f"Expected integer, got {lower.type}"
+                                ref = frame.stack.pop()
+                                assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                                s = state.heap[ref.value]
+                                result = virtual_methods.stringSubstring(s, lower.value, higher.value)
+                            
+                            if result == "StringIndexOutOfBoundsException":
+                                return "out of bounds"
+
+                            idx = state.heap_append(result)
+
+                            frame.pc += 1
+                            frame.stack.push(jvm.Value.reference(idx))
+                            return state
+
+                        case "indexOf":
+                            target = frame.stack.pop()
+
+                            match target.type:
+                                case jvm.Reference():
+                                    target = state.heap[target.value]
+                                case jvm.Int():
+                                    target = chr(target.value)
+                                case t:
+                                    assert False, f"Expected reference or int, got {t}"
+
+                            source = frame.stack.pop()
+                            assert source.type == jvm.Reference(), f"Expected reference, got {source.type}"
+                            source = state.heap[source.value]
+
+                            result = jvm.Value.int(virtual_methods.stringIndexOf(source, target))
+
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+
                         case name:
                             raise NotImplementedError(f"Don't know how to handle String method \"{name}\"")
                 case c:

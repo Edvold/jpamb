@@ -29,4 +29,30 @@ public class Strings {
         assert j.equals("Hello World!");
     }
 
+    public static String concatA(String s) {
+        return s + "A";
+    }
+
+    public static void assertReturn(String s) {
+        assert concatA(s).equals("Hello World!A");
+    }
+
+    public static void assertSubstring1(int lower) {
+        String s = "Hello World!";
+        assert s.substring(lower).equals("World!");
+    }
+
+    public static void assertSubstring2(int lower, int higher) {
+        String s = "Hello World!";
+        assert s.substring(lower, higher).equals("Hello");
+    }
+
+    public static void assertIndexOfString(String source, String target, int result) {
+        assert source.indexOf(target) == result;
+    }
+
+    public static void assertIndexOfChar(String source, char target, int result) {
+        assert source.indexOf(target) == result;
+    }
+
 }
