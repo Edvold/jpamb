@@ -50,7 +50,8 @@ public record CaseContent(
     SUCCESS,
     NON_TERMINATION,
     NULL_POINTER,
-    OUT_OF_BOUNDS;
+    OUT_OF_BOUNDS,
+    VULNERABLE;
 
     public static ResultType parse(String string) {
       if (string.equals("*")) {
@@ -65,6 +66,8 @@ public record CaseContent(
         return DIVIDE_BY_ZERO;
       } else if (string.equals("ok")) {
         return SUCCESS;
+      } else if (string.equals("vulnerable")) {
+        return VULNERABLE;
       } else {
         throw new RuntimeException("Invalid result type: " + string);
       }
@@ -84,6 +87,8 @@ public record CaseContent(
           return "*";
         case SUCCESS:
           return "ok";
+        case VULNERABLE:
+          return "vulnerable";
         default:
           throw new RuntimeException("Unexpected");
       }

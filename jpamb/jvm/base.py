@@ -108,6 +108,11 @@ class Type(ABC):
                     stack.append(Array)
                     i += 1
                     continue
+                case 'L':
+                    semicolon = input.index(";", i)
+                    classname = ClassName.decode(input[i + 1 : semicolon])
+                    r = Object(classname)
+                    i = semicolon
                 case _:
                     raise ValueError(f"Unknown type {input[i]}")
             break
@@ -143,6 +148,8 @@ class Type(ABC):
                     return Reference()
                 case "boolean":
                     return Boolean()
+                case "string":
+                    return String()
         if "base" in json:
             return Type.from_json(json["base"])
         if "kind" in json:
@@ -246,6 +253,24 @@ class Char(Type):
     def math(self):
         return "char"
 
+@dataclass(frozen=True)
+class String(Type):
+    """
+    A string type
+    """
+
+    _instance = None
+
+    def __new__(cls) -> "String":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def encode(self):
+        return "Ljava/lang/String;"
+
+    def math(self):
+        return "string" 
 
 @dataclass(frozen=True)
 class Short(Type):
@@ -621,6 +646,11 @@ class Value:
         return cls(Char(), char)
 
     @classmethod
+    def string(cls, string: str) -> Self:
+        chars = tuple(string)
+        return cls(Array(Char()), chars)
+
+    @classmethod
     def array(cls, type: Type, content: Iterable) -> Self:
         return cls(Array(type), tuple(content))
     
@@ -662,11 +692,12 @@ class ValueParser:
     @staticmethod
     def tokenize(string):
         token_specification = [
+            ("CHAR", r"'[^']'"),
+            ("STRING", r"\('[^'\)]*'\)|\('[^',]*'|'[^',]*'|'[^')]*'"),
             ("OPEN_ARRAY", r"\[[IC]:"),
             ("CLOSE_ARRAY", r"\]"),
             ("INT", r"-?\d+"),
             ("BOOL", r"true|false"),
-            ("CHAR", r"'[^']'"),
             ("COMMA", r","),
             ("SKIP", r"[ \t]+"),
         ]
@@ -716,6 +747,9 @@ class ValueParser:
                 return Value.boolean(self.parse_bool())
             case "OPEN_ARRAY":
                 return self.parse_array()
+            case "STRING":
+                return Value.string(self.parse_string())
+
         self.expected("char")
 
     def parse_int(self):
@@ -746,6 +780,24 @@ class ValueParser:
         self.expect("CLOSE_ARRAY")
 
         return Value(type, tuple(inputs))
+
+    def parse_string(self):
+        tok = self.expect("STRING")
+        raw = tok.value
+        if raw.startswith("(") and raw.endswith(")"):
+            raw = raw[1:-1]
+        if raw.startswith("("):
+            raw = raw[1:]
+        if raw.endswith(")"):
+            raw = raw[:-1]
+        if raw.startswith("'") and raw.endswith("'"):
+            content = raw[1:-1]
+            return content
+        elif raw.startswith('"') and raw.endswith('"'):
+            content = raw[1:-1]
+            return content
+        else:
+            self.expected("STRING")
 
     def parse_comma_seperated_values(self, parser=None, end_by=None):
         if self.head is None:

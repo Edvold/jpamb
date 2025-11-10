@@ -2,8 +2,6 @@ package jpamb.utils;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class InputParser {
   private Scanner sc;
@@ -48,7 +46,7 @@ public class InputParser {
       int value = Integer.parseInt(currentToken);
       nextToken();
       return value;
-    } else if (currentToken.matches("'[^']+'")) {
+    } else if (currentToken.matches("'[^']{1}'")) {
       // TODO does not handle '\''
       return currentToken.charAt(1);
     } else if (currentToken.equals("true")) {
@@ -61,7 +59,12 @@ public class InputParser {
       return parseIntList();
     } else if (currentToken.equals("[C:")) {
       return parseCharList();
-    } else {
+    } else if (currentToken.matches("'[^']*'")) {
+      String value = currentToken;
+      nextToken();
+      return value;
+    }
+    else {
       expected("input");
       return null;
     }
@@ -118,7 +121,7 @@ public class InputParser {
       return new char[] {};
     }
 
-    if (!currentToken.matches("'[^']+'"))
+    if (!currentToken.matches("'[^']{1}'"))
       expected("char");
 
     items.add(currentToken.charAt(1));
@@ -126,7 +129,7 @@ public class InputParser {
 
     while (currentToken != null && currentToken.equals(",")) {
       nextToken();
-      if (currentToken == null || !currentToken.matches("'[^']+'"))
+      if (currentToken == null || !currentToken.matches("'[^']{1}'"))
         expected("char");
       items.add(currentToken.charAt(1));
       nextToken();

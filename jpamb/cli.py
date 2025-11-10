@@ -542,7 +542,7 @@ def build(suite, compile, decompile, document, test):
             timeout=60,
         )
 
-        Path("stats/cases.txt").write_text("\n".join(res.splitlines().sorted()))
+        Path("stats/cases.txt").write_text("\n".join(sorted(res.splitlines())))
 
         # TODO: Compute distribution.csv
 

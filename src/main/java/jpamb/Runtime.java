@@ -1,15 +1,25 @@
 package jpamb;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import jpamb.utils.*;
+import jpamb.cases.Calls;
+import jpamb.cases.Loops;
+import jpamb.cases.Simple;
+import jpamb.cases.Tricky;
+import jpamb.cases.Vulnerable;
+import jpamb.utils.Case;
+import jpamb.utils.CaseContent;
 import jpamb.utils.CaseContent.ResultType;
-import jpamb.cases.*;
+import jpamb.utils.Cases;
+import jpamb.utils.InputParser;
 
 /**
  * The runtime method runs a single test-case and print the result or the
@@ -21,7 +31,8 @@ public class Runtime {
       Loops.class,
       Tricky.class,
       jpamb.cases.Arrays.class,
-      Calls.class);
+      Calls.class,
+      Vulnerable.class);
 
   public static Case[] cases(Method m) {
     var cases = m.getAnnotation(Cases.class);
@@ -52,7 +63,9 @@ public class Runtime {
       b.append("[I");
     } else if (c.equals(char[].class)) {
       b.append("[C");
-    } else {
+    } else if (c.equals(String.class)) {
+      b.append("Ljava/lang/String;");
+    }else {
       throw new RuntimeException("Unknown type:" + c.toString());
     }
   }
@@ -98,6 +111,14 @@ public class Runtime {
             case 'C' -> {
               params.add(char[].class);
               break;
+            }
+            case 'L' -> {
+              if (s.startsWith("java/lang/String;", i + 1)) {
+                params.add(String[].class);
+                i += "java/lang/String;".length();
+              } else {
+                throw new RuntimeException("Unknown type in signature: " + s);
+              }
             }
           }
         }

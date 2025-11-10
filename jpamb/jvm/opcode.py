@@ -81,6 +81,8 @@ class Opcode(ABC):
                         opr = InvokeInterface
                     case "special":
                         opr = InvokeSpecial
+                    case "dynamic":
+                        opr = InvokeDynamic
                     case access:
                         raise NotImplementedError(
                             f"Unhandled invoke access {access!r} (implement yourself)"
@@ -170,6 +172,8 @@ class Push(Opcode):
                     return "ldc"
             case jvm.Reference():
                 return "aconst_null"
+            case jvm.String():
+                return "ldc"
 
         raise NotImplementedError(f"Unhandled {self!r}")
 
@@ -542,6 +546,38 @@ class InvokeSpecial(Opcode):
         interface_str = " interface" if self.is_interface else ""
         return f"invoke special{interface_str} {self.method}"
 
+class InvokeDynamic(Opcode):
+    """The invoke dynamic opcode for calling dynamic methods"""
+
+    method: jvm.AbsMethodID
+
+    @classmethod
+    def from_json(cls, json: dict) -> "Opcode":
+        assert json["opr"] == "invoke" and json["access"] == "dynamic"
+        return cls(
+            offset=json["offset"],
+            method=jvm.AbsMethodID.from_json(json["method"]),
+        )
+
+    def real(self) -> str:
+        return f"invokedynamic {self.method}"
+
+    def semantics(self) -> str | None:
+        semantics = """
+        bc[i].opr = 'invoke'
+        bc[i].access = 'dynamic'
+        bc[i].method = m
+        -------------------------[invokedynamic]
+        bc |- (i, s + args) -> (i+1, s + [result])
+        """
+
+        return None
+
+    def mnemonic(self) -> str:
+        return "invokedynamic"
+
+    def __str__(self):
+        return f"invoke dynamic {self.method}"
 
 @dataclass(frozen=True, order=True)
 class Store(Opcode):
