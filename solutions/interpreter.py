@@ -113,6 +113,8 @@ class State:
 #### Abstract stuff ####
     
 # ints/booleans/chars mapped to {−,0,+}
+#TODO I'm not sure of how we should treat boolean and char values when it comes to sign abstraction.
+#What did you base yourself off for the current logic ?
 def sign_of_const(val: jvm.Value) -> SignSet:
     match val:
         case jvm.Value(type=jvm.Int(), value=v):
@@ -120,6 +122,7 @@ def sign_of_const(val: jvm.Value) -> SignSet:
         case jvm.Value(type=jvm.Boolean(), value=b):
             return SignSet.of_int(1 if b else 0)
         case jvm.Value(type=jvm.Char(), value=c):
+            #This will always return a positive value, because there are no negative Unicode values.
             return SignSet.of_int(ord(c))
         case _:
             return TOP  
