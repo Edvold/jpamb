@@ -9,6 +9,7 @@ target/test-classes/
 __pycache__
 
 result.json
+my_results.json
 .venv
 
 reports/
@@ -23,3 +24,5 @@ build/
 .jpamb-stepwise
 .hypothesis
 leananalyzer
+
+result
