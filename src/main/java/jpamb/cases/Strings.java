@@ -1,5 +1,7 @@
 package jpamb.cases;
 
+import jpamb.utils.Case;
+
 public class Strings {
 
     @Case("(\"Hello World!\") -> ok")
