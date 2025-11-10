@@ -1579,7 +1579,7 @@
             "condition": "eq",
             "offset": 144,
             "opr": "ifz",
-            "target": 77
+            "target": 84
           },
           {
             "index": 0,
@@ -1601,14 +1601,89 @@
             "static": false
           },
           {
-            "index": 1,
             "offset": 151,
+            "opr": "push",
+            "value": {
+              "type": "integer",
+              "value": 1
+            }
+          },
+          {
+            "index": 0,
+            "offset": 152,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "field": {
+              "class": "jpamb/utils/InputParser",
+              "name": "currentToken",
+              "type": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 153,
+            "opr": "get",
+            "static": false
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [],
+              "name": "length",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": "int"
+            },
+            "offset": 156,
+            "opr": "invoke"
+          },
+          {
+            "offset": 159,
+            "opr": "push",
+            "value": {
+              "type": "integer",
+              "value": 1
+            }
+          },
+          {
+            "offset": 160,
+            "operant": "sub",
+            "opr": "binary",
+            "type": "int"
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [
+                "int",
+                "int"
+              ],
+              "name": "substring",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 161,
+            "opr": "invoke"
+          },
+          {
+            "index": 1,
+            "offset": 164,
             "opr": "store",
             "type": "ref"
           },
           {
             "index": 0,
-            "offset": 152,
+            "offset": 165,
             "opr": "load",
             "type": "ref"
           },
@@ -1623,28 +1698,28 @@
               },
               "returns": null
             },
-            "offset": 153,
+            "offset": 166,
             "opr": "invoke"
           },
           {
             "index": 1,
-            "offset": 156,
+            "offset": 169,
             "opr": "load",
             "type": "ref"
           },
           {
-            "offset": 157,
+            "offset": 170,
             "opr": "return",
             "type": "ref"
           },
           {
             "index": 0,
-            "offset": 158,
+            "offset": 171,
             "opr": "load",
             "type": "ref"
           },
           {
-            "offset": 159,
+            "offset": 172,
             "opr": "push",
             "value": {
               "type": "string",
@@ -1667,16 +1742,16 @@
               },
               "returns": null
             },
-            "offset": 161,
+            "offset": 174,
             "opr": "invoke"
           },
           {
-            "offset": 164,
+            "offset": 177,
             "opr": "push",
             "value": null
           },
           {
-            "offset": 165,
+            "offset": 178,
             "opr": "return",
             "type": "ref"
           }
@@ -1765,23 +1840,23 @@
           },
           {
             "line": 68,
-            "offset": 73
+            "offset": 80
           },
           {
             "line": 69,
-            "offset": 75
+            "offset": 82
           },
           {
             "line": 71,
-            "offset": 77
+            "offset": 84
           },
           {
             "line": 72,
-            "offset": 80
+            "offset": 87
           }
         ],
         "max_locals": 2,
-        "max_stack": 2,
+        "max_stack": 4,
         "stack_map": [
           {
             "index": 14,
@@ -1808,7 +1883,7 @@
             "type": "same"
           },
           {
-            "index": 77,
+            "index": 84,
             "type": "same"
           }
         ]

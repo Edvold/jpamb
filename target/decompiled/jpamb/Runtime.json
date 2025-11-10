@@ -4018,7 +4018,7 @@
             "condition": "eq",
             "offset": 199,
             "opr": "ifz",
-            "target": 168
+            "target": 165
           },
           {
             "index": 3,
@@ -4398,7 +4398,7 @@
             "condition": "ge",
             "offset": 275,
             "opr": "if",
-            "target": 165
+            "target": 162
           },
           {
             "index": 0,
@@ -4649,7 +4649,7 @@
           {
             "offset": 323,
             "opr": "goto",
-            "target": 163
+            "target": 160
           },
           {
             "index": 10,
@@ -4671,46 +4671,8 @@
             "static": true
           },
           {
-            "index": 9,
-            "offset": 331,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/Object"
-                }
-              ],
-              "name": "println",
-              "ref": {
-                "kind": "class",
-                "name": "java/io/PrintStream"
-              },
-              "returns": null
-            },
-            "offset": 333,
-            "opr": "invoke"
-          },
-          {
-            "field": {
-              "class": "java/lang/System",
-              "name": "out",
-              "type": {
-                "kind": "class",
-                "name": "java/io/PrintStream"
-              }
-            },
-            "offset": 336,
-            "opr": "get",
-            "static": true
-          },
-          {
             "index": 10,
-            "offset": 339,
+            "offset": 331,
             "opr": "load",
             "type": "ref"
           },
@@ -4728,7 +4690,7 @@
                 "name": "java/lang/Throwable"
               }
             },
-            "offset": 341,
+            "offset": 333,
             "opr": "invoke"
           },
           {
@@ -4751,7 +4713,7 @@
                 "name": "jpamb/utils/CaseContent$ResultType"
               }
             },
-            "offset": 344,
+            "offset": 336,
             "opr": "invoke"
           },
           {
@@ -4770,22 +4732,22 @@
               },
               "returns": null
             },
-            "offset": 347,
+            "offset": 339,
             "opr": "invoke"
           },
           {
-            "offset": 350,
+            "offset": 342,
             "opr": "return",
             "type": null
           },
           {
             "amount": 1,
             "index": 8,
-            "offset": 351,
+            "offset": 343,
             "opr": "incr"
           },
           {
-            "offset": 354,
+            "offset": 346,
             "opr": "goto",
             "target": 123
           },
@@ -4798,7 +4760,7 @@
                 "name": "java/io/PrintStream"
               }
             },
-            "offset": 357,
+            "offset": 349,
             "opr": "get",
             "static": true
           },
@@ -4811,7 +4773,7 @@
                 "name": "jpamb/utils/CaseContent$ResultType"
               }
             },
-            "offset": 360,
+            "offset": 352,
             "opr": "get",
             "static": true
           },
@@ -4831,11 +4793,11 @@
               },
               "returns": null
             },
-            "offset": 363,
+            "offset": 355,
             "opr": "invoke"
           },
           {
-            "offset": 366,
+            "offset": 358,
             "opr": "return",
             "type": null
           }
@@ -4958,7 +4920,7 @@
             "offset": 147
           },
           {
-            "line": 156,
+            "line": 155,
             "offset": 152
           },
           {
@@ -4971,23 +4933,19 @@
           },
           {
             "line": 154,
-            "offset": 157
-          },
-          {
-            "line": 155,
-            "offset": 162
+            "offset": 159
           },
           {
             "line": 147,
-            "offset": 163
+            "offset": 160
           },
           {
-            "line": 158,
+            "line": 157,
+            "offset": 162
+          },
+          {
+            "line": 159,
             "offset": 165
-          },
-          {
-            "line": 160,
-            "offset": 168
           }
         ],
         "max_locals": 11,
@@ -5353,17 +5311,17 @@
             "type": "full_frame"
           },
           {
-            "index": 163,
+            "index": 160,
+            "info": 1,
+            "type": "chop_frame"
+          },
+          {
+            "index": 162,
             "info": 1,
             "type": "chop_frame"
           },
           {
             "index": 165,
-            "info": 1,
-            "type": "chop_frame"
-          },
-          {
-            "index": 168,
             "locals": [
               {
                 "ref": {

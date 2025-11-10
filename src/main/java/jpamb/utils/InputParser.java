@@ -64,7 +64,7 @@ public class InputParser {
     } else if (currentToken.equals("[C:")) {
       return parseCharList();
     } else if (currentToken.matches("\"[^\"]*\"")) {
-      String value = currentToken;
+      String value = currentToken.substring(1, currentToken.length() - 1);
       nextToken();
       return value;
     } else {
