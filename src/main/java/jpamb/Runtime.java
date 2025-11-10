@@ -16,12 +16,7 @@ import jpamb.cases.*;
  * exeception.
  */
 public class Runtime {
-  static List<Class<?>> caseclasses = List.of(
-      Simple.class,
-      Loops.class,
-      Tricky.class,
-      jpamb.cases.Arrays.class,
-      Calls.class);
+  static List<Class<?>> caseclasses = List.of(Strings.class);
 
   public static Case[] cases(Method m) {
     var cases = m.getAnnotation(Cases.class);
@@ -52,7 +47,10 @@ public class Runtime {
       b.append("[I");
     } else if (c.equals(char[].class)) {
       b.append("[C");
-    } else {
+    } else if (c.equals(String.class)) {
+      b.append("Ljava/lang/String;");
+    }
+    else {
       throw new RuntimeException("Unknown type:" + c.toString());
     }
   }
