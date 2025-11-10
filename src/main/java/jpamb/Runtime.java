@@ -99,6 +99,15 @@ public class Runtime {
             }
           }
         }
+        case 'L' -> {
+          // Just assume String
+          i++;
+          while (s.charAt(i) != ';') {
+            i++;
+          }
+          params.add(String.class);
+          break;
+        }
       }
     }
     Class<?>[] rparams = new Class<?>[params.size()];

@@ -50,7 +50,7 @@ public class InputParser {
       return value;
     } else if (currentToken.matches("'[^']+'")) {
       // TODO does not handle '\''
-      String value = currentToken;
+      char value = currentToken.charAt(1);
       nextToken();
       return value;
     } else if (currentToken.equals("true")) {

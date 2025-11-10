@@ -763,8 +763,8 @@ class ValueParser:
         return tok.value[1]
     
     def parse_string(self):
-        key = self.expect("STRING")
-        return Value(Object(ClassName.decode("java/lang/String")), key.value)
+        tok = self.expect("STRING")
+        return Value(Object(ClassName.decode("java/lang/String")), tok.value)
 
     def parse_array(self):
         key = self.expect("OPEN_ARRAY")
