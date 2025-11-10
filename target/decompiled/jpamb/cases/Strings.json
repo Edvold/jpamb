@@ -195,115 +195,6 @@
   "methods": [
     {
       "access": [
-        "static"
-      ],
-      "annotations": [],
-      "code": {
-        "annotations": [],
-        "bytecode": [
-          {
-            "offset": 0,
-            "opr": "push",
-            "value": {
-              "type": "class",
-              "value": {
-                "kind": "class",
-                "name": "jpamb/cases/Strings"
-              }
-            }
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [],
-              "name": "desiredAssertionStatus",
-              "ref": {
-                "kind": "class",
-                "name": "java/lang/Class"
-              },
-              "returns": "boolean"
-            },
-            "offset": 2,
-            "opr": "invoke"
-          },
-          {
-            "condition": "ne",
-            "offset": 5,
-            "opr": "ifz",
-            "target": 5
-          },
-          {
-            "offset": 8,
-            "opr": "push",
-            "value": {
-              "type": "integer",
-              "value": 1
-            }
-          },
-          {
-            "offset": 9,
-            "opr": "goto",
-            "target": 6
-          },
-          {
-            "offset": 12,
-            "opr": "push",
-            "value": {
-              "type": "integer",
-              "value": 0
-            }
-          },
-          {
-            "field": {
-              "class": "jpamb/cases/Strings",
-              "name": "$assertionsDisabled",
-              "type": "boolean"
-            },
-            "offset": 13,
-            "opr": "put",
-            "static": true
-          },
-          {
-            "offset": 16,
-            "opr": "return",
-            "type": null
-          }
-        ],
-        "exceptions": [],
-        "lines": [
-          {
-            "line": 3,
-            "offset": 0
-          }
-        ],
-        "max_locals": 0,
-        "max_stack": 1,
-        "stack_map": [
-          {
-            "index": 5,
-            "type": "same"
-          },
-          {
-            "index": 6,
-            "info": {
-              "type": "integer"
-            },
-            "type": "same_locals_1_stack_item_frame"
-          }
-        ]
-      },
-      "default": null,
-      "exceptions": [],
-      "name": "<clinit>",
-      "params": [],
-      "returns": {
-        "annotations": [],
-        "type": null
-      },
-      "typeparams": []
-    },
-    {
-      "access": [
         "public"
       ],
       "annotations": [],
@@ -340,7 +231,7 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 3,
+            "line": 5,
             "offset": 0
           }
         ],
@@ -363,7 +254,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\") -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World\") -> assertion error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -487,9 +414,36 @@
             "type": "int"
           },
           {
+            "index": 2,
             "offset": 30,
-            "opr": "goto",
-            "target": 30
+            "opr": "load",
+            "type": "int"
+          },
+          {
+            "index": 1,
+            "offset": 31,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [],
+              "name": "length",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": "int"
+            },
+            "offset": 32,
+            "opr": "invoke"
+          },
+          {
+            "condition": "ge",
+            "offset": 35,
+            "opr": "if",
+            "target": 34
           },
           {
             "field": {
@@ -497,46 +451,18 @@
               "name": "$assertionsDisabled",
               "type": "boolean"
             },
-            "offset": 33,
+            "offset": 38,
             "opr": "get",
             "static": true
           },
           {
             "condition": "ne",
-            "offset": 36,
+            "offset": 41,
             "opr": "ifz",
-            "target": 29
+            "target": 32
           },
           {
             "index": 1,
-            "offset": 39,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "index": 2,
-            "offset": 40,
-            "opr": "load",
-            "type": "int"
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [
-                "int"
-              ],
-              "name": "charAt",
-              "ref": {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              "returns": "char"
-            },
-            "offset": 41,
-            "opr": "invoke"
-          },
-          {
-            "index": 0,
             "offset": 44,
             "opr": "load",
             "type": "ref"
@@ -564,18 +490,46 @@
             "opr": "invoke"
           },
           {
-            "condition": "eq",
+            "index": 0,
             "offset": 49,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "index": 2,
+            "offset": 50,
+            "opr": "load",
+            "type": "int"
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [
+                "int"
+              ],
+              "name": "charAt",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/String"
+              },
+              "returns": "char"
+            },
+            "offset": 51,
+            "opr": "invoke"
+          },
+          {
+            "condition": "eq",
+            "offset": 54,
             "opr": "if",
-            "target": 29
+            "target": 32
           },
           {
             "class": "java/lang/AssertionError",
-            "offset": 52,
+            "offset": 57,
             "opr": "new"
           },
           {
-            "offset": 55,
+            "offset": 60,
             "opr": "dup",
             "words": 1
           },
@@ -591,50 +545,23 @@
               },
               "returns": null
             },
-            "offset": 56,
+            "offset": 61,
             "opr": "invoke"
           },
           {
-            "offset": 59,
+            "offset": 64,
             "opr": "throw"
           },
           {
             "amount": 1,
             "index": 2,
-            "offset": 60,
+            "offset": 65,
             "opr": "incr"
           },
           {
-            "index": 2,
-            "offset": 63,
-            "opr": "load",
-            "type": "int"
-          },
-          {
-            "index": 1,
-            "offset": 64,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [],
-              "name": "length",
-              "ref": {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              "returns": "int"
-            },
-            "offset": 65,
-            "opr": "invoke"
-          },
-          {
-            "condition": "lt",
             "offset": 68,
-            "opr": "if",
-            "target": 16
+            "opr": "goto",
+            "target": 15
           },
           {
             "offset": 71,
@@ -645,27 +572,27 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 6,
+            "line": 10,
             "offset": 0
           },
           {
-            "line": 8,
+            "line": 12,
             "offset": 2
           },
           {
-            "line": 10,
+            "line": 14,
             "offset": 13
           },
           {
-            "line": 11,
-            "offset": 16
+            "line": 15,
+            "offset": 19
           },
           {
-            "line": 10,
-            "offset": 29
+            "line": 14,
+            "offset": 32
           },
           {
-            "line": 13,
+            "line": 17,
             "offset": 34
           }
         ],
@@ -686,7 +613,7 @@
             "type": "append_frame"
           },
           {
-            "index": 16,
+            "index": 15,
             "info": [
               {
                 "type": "integer"
@@ -695,12 +622,13 @@
             "type": "append_frame"
           },
           {
-            "index": 29,
+            "index": 32,
             "type": "same"
           },
           {
-            "index": 30,
-            "type": "same"
+            "index": 34,
+            "info": 1,
+            "type": "chop_frame"
           }
         ]
       },
@@ -731,7 +659,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\") -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World\") -> assertion error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -840,15 +804,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 16,
+            "line": 22,
             "offset": 0
           },
           {
-            "line": 17,
+            "line": 23,
             "offset": 2
           },
           {
-            "line": 18,
+            "line": 24,
             "offset": 12
           }
         ],
@@ -897,7 +861,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"World!\") -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"World\") -> assertion error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -1049,19 +1049,19 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 21,
+            "line": 29,
             "offset": 0
           },
           {
-            "line": 22,
+            "line": 30,
             "offset": 2
           },
           {
-            "line": 24,
+            "line": 32,
             "offset": 6
           },
           {
-            "line": 25,
+            "line": 33,
             "offset": 16
           }
         ],
@@ -1117,7 +1117,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"World!\") -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"World\") -> assertion error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -1245,15 +1281,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 28,
+            "line": 38,
             "offset": 0
           },
           {
-            "line": 29,
+            "line": 39,
             "offset": 3
           },
           {
-            "line": 30,
+            "line": 40,
             "offset": 13
           }
         ],
@@ -1340,7 +1376,7 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 33,
+            "line": 43,
             "offset": 0
           }
         ],
@@ -1380,7 +1416,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\") -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World\") -> assertion error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -1500,11 +1572,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 37,
+            "line": 49,
             "offset": 0
           },
           {
-            "line": 38,
+            "line": 50,
             "offset": 11
           }
         ],
@@ -1544,7 +1616,67 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(6) -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(7) -> assertion error"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(-1) -> out of bounds"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(13) -> out of bounds"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -1680,15 +1812,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 41,
+            "line": 57,
             "offset": 0
           },
           {
-            "line": 42,
+            "line": 58,
             "offset": 2
           },
           {
-            "line": 43,
+            "line": 59,
             "offset": 14
           }
         ],
@@ -1734,7 +1866,79 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(0, 5) -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(0, 6) -> assertion error"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(0, 13) -> out of bounds"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(-1, 3) -> out of bounds"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(5, 4) -> out of bounds"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -1877,15 +2081,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 46,
+            "line": 67,
             "offset": 0
           },
           {
-            "line": 47,
+            "line": 68,
             "offset": 2
           },
           {
-            "line": 48,
+            "line": 69,
             "offset": 15
           }
         ],
@@ -1939,7 +2143,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", \"Hello\", 0) -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", \"Hey\", -1) -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -2040,11 +2280,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 51,
+            "line": 74,
             "offset": 0
           },
           {
-            "line": 52,
+            "line": 75,
             "offset": 11
           }
         ],
@@ -2103,7 +2343,43 @@
         "public",
         "static"
       ],
-      "annotations": [],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", 'l', 2) -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", 'y', -1) -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "code": {
         "annotations": [],
         "bytecode": [
@@ -2201,11 +2477,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 55,
+            "line": 80,
             "offset": 0
           },
           {
-            "line": 56,
+            "line": 81,
             "offset": 11
           }
         ],
@@ -2255,6 +2531,115 @@
         "type": null
       },
       "typeparams": []
+    },
+    {
+      "access": [
+        "static"
+      ],
+      "annotations": [],
+      "code": {
+        "annotations": [],
+        "bytecode": [
+          {
+            "offset": 0,
+            "opr": "push",
+            "value": {
+              "type": "class",
+              "value": {
+                "kind": "class",
+                "name": "jpamb/cases/Strings"
+              }
+            }
+          },
+          {
+            "access": "virtual",
+            "method": {
+              "args": [],
+              "name": "desiredAssertionStatus",
+              "ref": {
+                "kind": "class",
+                "name": "java/lang/Class"
+              },
+              "returns": "boolean"
+            },
+            "offset": 2,
+            "opr": "invoke"
+          },
+          {
+            "condition": "ne",
+            "offset": 5,
+            "opr": "ifz",
+            "target": 5
+          },
+          {
+            "offset": 8,
+            "opr": "push",
+            "value": {
+              "type": "integer",
+              "value": 1
+            }
+          },
+          {
+            "offset": 9,
+            "opr": "goto",
+            "target": 6
+          },
+          {
+            "offset": 12,
+            "opr": "push",
+            "value": {
+              "type": "integer",
+              "value": 0
+            }
+          },
+          {
+            "field": {
+              "class": "jpamb/cases/Strings",
+              "name": "$assertionsDisabled",
+              "type": "boolean"
+            },
+            "offset": 13,
+            "opr": "put",
+            "static": true
+          },
+          {
+            "offset": 16,
+            "opr": "return",
+            "type": null
+          }
+        ],
+        "exceptions": [],
+        "lines": [
+          {
+            "line": 5,
+            "offset": 0
+          }
+        ],
+        "max_locals": 0,
+        "max_stack": 1,
+        "stack_map": [
+          {
+            "index": 5,
+            "type": "same"
+          },
+          {
+            "index": 6,
+            "info": {
+              "type": "integer"
+            },
+            "type": "same_locals_1_stack_item_frame"
+          }
+        ]
+      },
+      "default": null,
+      "exceptions": [],
+      "name": "<clinit>",
+      "params": [],
+      "returns": {
+        "annotations": [],
+        "type": null
+      },
+      "typeparams": []
     }
   ],
   "name": "jpamb/cases/Strings",
@@ -2266,7 +2651,7 @@
   },
   "typeparams": [],
   "version": [
-    63,
+    65,
     0
   ]
 }
