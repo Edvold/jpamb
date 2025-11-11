@@ -137,6 +137,15 @@
   "innerclasses": [
     {
       "access": [
+        "private",
+        "static"
+      ],
+      "class": "jpamb/cases/Vulnerable$MySQLEngine",
+      "name": "MySQLEngine",
+      "outer": "jpamb/cases/Vulnerable"
+    },
+    {
+      "access": [
         "public",
         "static",
         "final"
@@ -144,15 +153,6 @@
       "class": "java/lang/invoke/MethodHandles$Lookup",
       "name": "Lookup",
       "outer": "java/lang/invoke/MethodHandles"
-    },
-    {
-      "access": [
-        "private",
-        "static"
-      ],
-      "class": "jpamb/cases/Vulnerable$MySQLEngine",
-      "name": "MySQLEngine",
-      "outer": "jpamb/cases/Vulnerable"
     }
   ],
   "interfaces": [],
@@ -405,14 +405,6 @@
           {
             "line": 19,
             "offset": 0
-          },
-          {
-            "line": 20,
-            "offset": 1
-          },
-          {
-            "line": 19,
-            "offset": 2
           },
           {
             "line": 23,
@@ -986,14 +978,6 @@
             "offset": 0
           },
           {
-            "line": 57,
-            "offset": 1
-          },
-          {
-            "line": 56,
-            "offset": 2
-          },
-          {
             "line": 60,
             "offset": 4
           },
@@ -1049,7 +1033,7 @@
   },
   "typeparams": [],
   "version": [
-    63,
+    65,
     0
   ]
 }
