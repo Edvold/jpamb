@@ -6,10 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.*;
 import java.util.stream.Stream;
-
+import jpamb.cases.*;
 import jpamb.utils.*;
 import jpamb.utils.CaseContent.ResultType;
-import jpamb.cases.*;
 
 /**
  * The runtime method runs a single test-case and print the result or the
@@ -22,7 +21,8 @@ public class Runtime {
     Tricky.class,
     jpamb.cases.Arrays.class,
     Calls.class,
-    Strings.class);
+    Strings.class,
+    Vulnerable.class);
 
   public static Case[] cases(Method m) {
     var cases = m.getAnnotation(Cases.class);
