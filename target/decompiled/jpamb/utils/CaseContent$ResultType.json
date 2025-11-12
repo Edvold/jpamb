@@ -1477,10 +1477,30 @@
             }
           },
           {
-            "condition": "eq",
+            "condition": "ne",
             "offset": 37,
             "opr": "ifz",
-            "target": 20
+            "target": 21
+          },
+          {
+            "index": 0,
+            "offset": 40,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "offset": 41,
+            "opr": "instanceof",
+            "type": {
+              "kind": "class",
+              "name": "java/lang/IndexOutOfBoundsException"
+            }
+          },
+          {
+            "condition": "eq",
+            "offset": 44,
+            "opr": "ifz",
+            "target": 23
           },
           {
             "field": {
@@ -1491,23 +1511,23 @@
                 "name": "jpamb/utils/CaseContent$ResultType"
               }
             },
-            "offset": 40,
+            "offset": 47,
             "opr": "get",
             "static": true
           },
           {
-            "offset": 43,
+            "offset": 50,
             "opr": "return",
             "type": "ref"
           },
           {
             "index": 0,
-            "offset": 44,
+            "offset": 51,
             "opr": "load",
             "type": "ref"
           },
           {
-            "offset": 45,
+            "offset": 52,
             "opr": "instanceof",
             "type": {
               "kind": "class",
@@ -1516,9 +1536,9 @@
           },
           {
             "condition": "eq",
-            "offset": 48,
+            "offset": 55,
             "opr": "ifz",
-            "target": 25
+            "target": 28
           },
           {
             "field": {
@@ -1529,27 +1549,27 @@
                 "name": "jpamb/utils/CaseContent$ResultType"
               }
             },
-            "offset": 51,
+            "offset": 58,
             "opr": "get",
             "static": true
           },
           {
-            "offset": 54,
+            "offset": 61,
             "opr": "return",
             "type": "ref"
           },
           {
             "class": "java/lang/RuntimeException",
-            "offset": 55,
+            "offset": 62,
             "opr": "new"
           },
           {
-            "offset": 58,
+            "offset": 65,
             "opr": "dup",
             "words": 1
           },
           {
-            "offset": 59,
+            "offset": 66,
             "opr": "push",
             "value": {
               "type": "string",
@@ -1573,11 +1593,11 @@
               },
               "returns": null
             },
-            "offset": 61,
+            "offset": 68,
             "opr": "invoke"
           },
           {
-            "offset": 64,
+            "offset": 71,
             "opr": "throw"
           }
         ],
@@ -1613,19 +1633,19 @@
           },
           {
             "line": 104,
-            "offset": 18
+            "offset": 21
           },
           {
             "line": 105,
-            "offset": 20
-          },
-          {
-            "line": 106,
             "offset": 23
           },
           {
+            "line": 106,
+            "offset": 26
+          },
+          {
             "line": 108,
-            "offset": 25
+            "offset": 28
           }
         ],
         "max_locals": 1,
@@ -1644,11 +1664,15 @@
             "type": "same"
           },
           {
-            "index": 20,
+            "index": 21,
             "type": "same"
           },
           {
-            "index": 25,
+            "index": 23,
+            "type": "same"
+          },
+          {
+            "index": 28,
             "type": "same"
           }
         ]
