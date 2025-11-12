@@ -111,8 +111,8 @@ class TestFileAccessibility:
 
     def test_cases_file_readable(self):
         """Test that the cases.txt file is readable."""
-        cases_file = Path("stats/cases.txt")
-        assert cases_file.exists(), "stats/cases.txt should exist"
+        cases_file = Path(model.case_file)
+        assert cases_file.exists(), f"{model.case_file} should exist"
 
         # Should be able to read and parse cases
         with open(cases_file) as f:
