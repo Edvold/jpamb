@@ -100,7 +100,7 @@ public record CaseContent(
         return ASSERTION_ERROR;
       } else if (cause instanceof TimeoutException) {
         return NON_TERMINATION;
-      } else if (cause instanceof ArrayIndexOutOfBoundsException) {
+      } else if (cause instanceof ArrayIndexOutOfBoundsException || cause instanceof IndexOutOfBoundsException) {
         return OUT_OF_BOUNDS;
       } else if (cause instanceof NullPointerException) {
         return NULL_POINTER;
