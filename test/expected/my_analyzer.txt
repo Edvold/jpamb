@@ -3,9 +3,9 @@
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -13,22 +13,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertBoolean:(Z)V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.40
+│ Score 6.00
 └ Case jpamb.cases.Simple.assertBoolean:(Z)V
 ┌ Case jpamb.cases.Simple.assertFalse:()V
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertFalse:()V'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;5%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -36,22 +36,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertFalse:()V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 5.00% -9.00
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -9.20
+│ Score 5.90
 └ Case jpamb.cases.Simple.assertFalse:()V
 ┌ Case jpamb.cases.Simple.assertInteger:(I)V
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertInteger:(I)V'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -59,22 +59,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertInteger:(I)V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.40
+│ Score 6.00
 └ Case jpamb.cases.Simple.assertInteger:(I)V
 ┌ Case jpamb.cases.Simple.assertPositive:(I)V
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertPositive:(I)V'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -82,22 +82,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.assertPositive:(I)V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.40
+│ Score 6.00
 └ Case jpamb.cases.Simple.assertPositive:(I)V
 ┌ Case jpamb.cases.Simple.checkBeforeAssert:(I)V
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeAssert:(I)V'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -105,22 +105,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeAssert:(I)V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.40
+│ Score 6.00
 └ Case jpamb.cases.Simple.checkBeforeAssert:(I)V
 ┌ Case jpamb.cases.Simple.checkBeforeDivideByN2:(I)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeDivideByN2:(I)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -128,22 +128,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeDivideByN2:(I)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.checkBeforeDivideByN2:(I)I
 ┌ Case jpamb.cases.Simple.checkBeforeDivideByN:(I)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeDivideByN:(I)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -151,22 +151,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.checkBeforeDivideByN:(I)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.40
+│ Score 6.00
 └ Case jpamb.cases.Simple.checkBeforeDivideByN:(I)I
 ┌ Case jpamb.cases.Simple.divideByN:(I)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByN:(I)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;100%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -174,22 +174,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByN:(I)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 0.70
+│ Score 6.00
 └ Case jpamb.cases.Simple.divideByN:(I)I
 ┌ Case jpamb.cases.Simple.divideByNMinus10054203:(I)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByNMinus10054203:(I)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;100%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -197,22 +197,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByNMinus10054203:(I)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 0.70
+│ Score 6.00
 └ Case jpamb.cases.Simple.divideByNMinus10054203:(I)I
 ┌ Case jpamb.cases.Simple.divideByZero:()I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByZero:()I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;5%
+│││ divide by zero;100%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -220,22 +220,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideByZero:()I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 5.00% -9.00
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -4.10
+│ Score 5.90
 └ Case jpamb.cases.Simple.divideByZero:()I
 ┌ Case jpamb.cases.Simple.divideZeroByZero:(II)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideZeroByZero:(II)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;100%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -243,22 +243,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.divideZeroByZero:(II)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 0.70
+│ Score 6.00
 └ Case jpamb.cases.Simple.divideZeroByZero:(II)I
 ┌ Case jpamb.cases.Simple.earlyReturn:()I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.earlyReturn:()I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -266,22 +266,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.earlyReturn:()I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.earlyReturn:()I
 ┌ Case jpamb.cases.Simple.justAdd:(II)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justAdd:(II)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -289,22 +289,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justAdd:(II)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.justAdd:(II)I
 ┌ Case jpamb.cases.Simple.justMulitply:(II)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justMulitply:(II)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -312,22 +312,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justMulitply:(II)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.justMulitply:(II)I
 ┌ Case jpamb.cases.Simple.justReturn:()I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justReturn:()I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -335,22 +335,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justReturn:()I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.justReturn:()I
 ┌ Case jpamb.cases.Simple.justReturnNothing:()V
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justReturnNothing:()V'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;100%
+│││ divide by zero;0%
+│││ assertion error;0%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -358,22 +358,22 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.justReturnNothing:()V'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% -inf
+││ - divide by zero: 0.00% -inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 0.00% inf
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score 5.50
+│ Score 6.00
 └ Case jpamb.cases.Simple.justReturnNothing:()V
 ┌ Case jpamb.cases.Simple.multiError:(Z)I
 │┌ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.multiError:(Z)I'
 ││┌ Stderr
 ││└ Stderr
 ││┌ Stdout
-│││ ok;90%
-│││ divide by zero;10%
-│││ assertion error;5%
+│││ ok;5%
+│││ divide by zero;100%
+│││ assertion error;100%
 │││ out of bounds;0%
 │││ null pointer;0%
 │││ *;0%
@@ -381,12 +381,12 @@
 │└ Run .venv/bin/python solutions/my_analyzer.py 'jpamb.cases.Simple.multiError:(Z)I'
 │┌ Results
 ││ - *: 0.00% -inf
-││ - assertion error: 5.00% -9.00
-││ - divide by zero: 10.00% -4.00
+││ - assertion error: 0.00% inf
+││ - divide by zero: 0.00% inf
 ││ - null pointer: 0.00% -inf
-││ - ok: 90.00% 4.00
+││ - ok: 5.00% -9.00
 ││ - out of bounds: 0.00% -inf
 │└ Results
-│ Score -14.00
+│ Score 5.90
 └ Case jpamb.cases.Simple.multiError:(Z)I
-Total -14.20
+Total 101.70
