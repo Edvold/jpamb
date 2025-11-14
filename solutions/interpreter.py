@@ -121,6 +121,7 @@ def sign_of_const(val: jvm.Value) -> SignSet:
         case jvm.Value(type=jvm.Boolean(), value=b):
             return SignSet.of_int(1 if b else 0)
         case jvm.Value(type=jvm.Char(), value=c):
+            #This will always return a positive value, because there are no negative Unicode values.
             return SignSet.of_int(ord(c))
         case _:
             return TOP  
@@ -748,7 +749,7 @@ def execute(methodid, input):
 
     state = State(heap, heap_items, Stack.empty().push(frame))
 
-    for x in range(100000):
+    for x in range(1000000):
         state = step(state)
         if isinstance(state, str):
             return state

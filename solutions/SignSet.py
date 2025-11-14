@@ -83,9 +83,14 @@ class SignSet:
 
     def add(self, b: "SignSet") -> "SignSet":
         a = self
-        neg = (a.may_be_neg() and not b.may_be_pos()) or (b.may_be_neg() and not a.may_be_pos()) or (a.may_be_neg() and b.may_be_neg())
-        pos = (a.may_be_pos() and not b.may_be_neg()) or (b.may_be_pos() and not a.may_be_neg()) or (a.may_be_pos() and b.may_be_pos())
-        zero = a.may_be_zero() or b.may_be_zero() or (a.may_be_neg() and b.may_be_pos()) or (a.may_be_pos() and b.may_be_neg())
+
+        neg = a.may_be_neg() or b.may_be_neg()
+        
+        pos = a.may_be_pos() or b.may_be_pos()
+        
+        zero = a.may_be_zero() or b.may_be_zero() or \
+               (a.may_be_neg() and b.may_be_pos()) or \
+               (a.may_be_pos() and b.may_be_neg())
         
         return self._from_flags(neg, zero, pos)
 
@@ -98,6 +103,12 @@ class SignSet:
         neg = (a.may_be_neg() and b.may_be_pos()) or (a.may_be_pos() and b.may_be_neg())
         pos = (a.may_be_pos() and b.may_be_pos()) or (a.may_be_neg() and b.may_be_neg())
         return self._from_flags(neg, zero, pos)
+    
+    def le(self, other: "SignSet") -> bool:
+        return (
+            (self.mask & other.mask) == self.mask 
+            or ((self.may_be_neg() or self.may_be_zero()) and (not other.may_be_neg() and (other.may_be_pos() or other.may_be_zero())))
+            ) 
 
     def div(self, b: "SignSet") -> tuple["SignSet", bool]:
         a = self
