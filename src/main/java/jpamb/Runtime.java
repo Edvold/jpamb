@@ -6,10 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.*;
 import java.util.stream.Stream;
-
+import jpamb.cases.*;
 import jpamb.utils.*;
 import jpamb.utils.CaseContent.ResultType;
-import jpamb.cases.*;
 
 /**
  * The runtime method runs a single test-case and print the result or the
@@ -17,11 +16,13 @@ import jpamb.cases.*;
  */
 public class Runtime {
   static List<Class<?>> caseclasses = List.of(
-      Simple.class,
-      Loops.class,
-      Tricky.class,
-      jpamb.cases.Arrays.class,
-      Calls.class);
+    Simple.class,
+    Loops.class,
+    Tricky.class,
+    jpamb.cases.Arrays.class,
+    Calls.class,
+    Strings.class,
+    Vulnerable.class);
 
   public static Case[] cases(Method m) {
     var cases = m.getAnnotation(Cases.class);
@@ -52,7 +53,10 @@ public class Runtime {
       b.append("[I");
     } else if (c.equals(char[].class)) {
       b.append("[C");
-    } else {
+    } else if (c.equals(String.class)) {
+      b.append("Ljava/lang/String;");
+    }
+    else {
       throw new RuntimeException("Unknown type:" + c.toString());
     }
   }
@@ -100,6 +104,15 @@ public class Runtime {
               break;
             }
           }
+        }
+        case 'L' -> {
+          // Just assume String
+          i++;
+          while (s.charAt(i) != ';') {
+            i++;
+          }
+          params.add(String.class);
+          break;
         }
       }
     }

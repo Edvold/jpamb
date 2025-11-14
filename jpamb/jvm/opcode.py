@@ -81,6 +81,8 @@ class Opcode(ABC):
                         opr = InvokeInterface
                     case "special":
                         opr = InvokeSpecial
+                    case "dynamic":
+                        opr = InvokeDynamic
                     case access:
                         raise NotImplementedError(
                             f"Unhandled invoke access {access!r} (implement yourself)"
@@ -146,8 +148,11 @@ class Push(Opcode):
                         return "iconst_5"
                 return f"ldc [{self.value.value}]"
             case jvm.Reference():
-                assert self.value.value is None, f"what is {self.value}"
-                return "aconst_null"
+                if type(self.value.value) == str:
+                    return f"ldc [{self.value.value}]"
+                else:
+                    assert self.value.value is None, f"what is {self.value}"
+                    return "aconst_null"
 
         raise NotImplementedError(f"Unhandled {self!r}")
 
@@ -400,7 +405,7 @@ class InvokeVirtual(Opcode):
         )
 
     def real(self) -> str:
-        return f"invokevirtual {self.method.dashed()}"
+        return f"invokevirtual {self.method.classname.slashed()}/{self.method.extension.name}"
 
     def semantics(self) -> str | None:
         semantics = """
@@ -542,13 +547,57 @@ class InvokeSpecial(Opcode):
         interface_str = " interface" if self.is_interface else ""
         return f"invoke special{interface_str} {self.method}"
 
+@dataclass(frozen=True, order=True)
+class InvokeDynamic(Opcode):
+    """The invokedynamic opcode for dynamic method invocation.
+
+    According to the JVM spec, invokedynamic:
+    - Invokes a method whose linkage is determined at runtime
+    - Used for:
+      * Dynamic language support (e.g., JRuby, Groovy)
+      * Java lambda expressions and string concatenation (Java 8+ and 9+)
+    """
+
+    method: jvm.AbsMethodID
+    index: int # The index in the bootstrap methods table
+
+    @classmethod
+    def from_json(cls, json: dict) -> "Opcode":
+        assert json["opr"] == "invoke" and json["access"] == "dynamic"
+        return cls(
+            offset=json["offset"],
+            method=jvm.AbsMethodID.from_json(json["method"]),
+            index=json["index"],
+        )
+
+    def real(self) -> str:
+        return f"invokedynamic {self.method}"
+
+    def semantics(self) -> str | None:
+        semantics = """
+        bc[i].opr = 'invoke'
+        bc[i].access = 'dynamic'
+        bc[i].method = m
+        -------------------------[invokedynamic]
+        bc |- (i, s + [objectref, args...]) -> (i+1, s + [result])
+        where objectref must be an instance of current class or subclass
+        """
+
+        return None
+
+    def mnemonic(self) -> str:
+        return "invokedynamic"
+
+    def __str__(self):
+        return f"invoke dynamic {self.method}"
+
 
 @dataclass(frozen=True, order=True)
 class Store(Opcode):
     """The store opcode that stores values to local variables"""
 
     type: jvm.Type
-    index: int  # Adding the index field from CODEC.txt
+    index: int  # Adding the index field from CODEC.txt½
 
     @classmethod
     def from_json(cls, json: dict) -> "Opcode":

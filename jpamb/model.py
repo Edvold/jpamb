@@ -12,11 +12,13 @@ from loguru import logger
 import collections
 from collections import defaultdict
 import re
+import os
+import shutil
+import subprocess
 
 from typing import Iterable
 
 from jpamb import jvm
-from jpamb import timer
 
 
 @dataclass(frozen=True, order=True)
@@ -105,7 +107,6 @@ def _check(reason, failfast=False):
 
 @dataclass(frozen=True)
 class AnalysisInfo:
-
     name: str
     version: str
     group: str
@@ -245,7 +246,7 @@ class Suite:
     @property
     def stats_folder(self) -> Path:
         """The folder to place the statistics about the repository"""
-        return self.workfolder / "stats"
+        return self.workfolder / "target" / "stats"
 
     @property
     def classfiles_folder(self) -> Path:
@@ -275,7 +276,7 @@ class Suite:
 
     @property
     def decompiled_folder(self) -> Path:
-        return self.workfolder / "decompiled"
+        return self.workfolder / "target" / "decompiled"
 
     def decompiledfiles(self) -> Iterable[Path]:
         yield from self.decompiled_folder.glob("**/*.json")
@@ -300,11 +301,22 @@ class Suite:
 
             assert params == methodid.extension.params, (
                 f"Mulitple methods with same name {method['name']!r}, "
-                f"but different params {params} from {method["params"]} and {methodid.extension.params}"
+                f"but different params {params} from {method['params']} and {methodid.extension.params}"
             )
             break
         else:
             raise IndexError(f"Could not find {methodid}")
+        return method
+    
+    def find_bootstrap_methods(self, classname) -> jvm:
+        bootstrap_methods = self.findclass(classname)["bootstrapmethods"]
+        
+        bootstrap = dict()
+        for method in bootstrap_methods:
+            index = method["index"]
+            abs_method_id = jvm.AbsMethodID.from_json(method["method"])
+            bootstrap[index] = abs_method_id
+
         return method
 
     def method_opcodes(self, method: jvm.Absolute[jvm.MethodID]) -> list[jvm.Opcode]:
@@ -349,9 +361,23 @@ class Suite:
 
     def checkhealth(self, failfast=False):
         """Checks the health of the repository through a sequence of tests"""
+        from jpamb import timer
 
         def check(msg):
             return _check(msg, failfast)
+
+        with check("The path"):
+            with check("docker"):
+                dockerbin = shutil.which("podman") or shutil.which("docker")
+                assert dockerbin is not None, "java not on path"
+                res = subprocess.run(
+                    [dockerbin, "--version"],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    text=True,
+                )
+                logger.debug(f"{dockerbin} --version\n{res}")
+                assert res.returncode == 0, "dockerbin --version failed"
 
         with check("The timer"):
             x = timer.sieve(1000)

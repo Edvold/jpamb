@@ -2,13 +2,14 @@ import jpamb
 from jpamb import jvm
 from dataclasses import dataclass
 import numpy
+import virtual_methods
+import dynamic_methods
 
 import sys
 from loguru import logger
 
 logger.remove()
 logger.add(sys.stderr, format="[{level}] {message}")
-
 
 @dataclass
 class PC:
@@ -112,7 +113,13 @@ def step(state: State) -> State | str:
     logger.debug(f"STEP {opr}\n{state}")
     match opr:
         case jvm.Push(value=v):
-            frame.stack.push(v)
+            match v.type:
+                case jvm.Reference():
+                    idx = state.heap_append(v.value)
+                    frame.stack.push(jvm.Value.reference(idx))
+                case _:
+                    frame.stack.push(v)
+
             frame.pc += 1
             return state
         case jvm.Load(type=type, index=idx):
@@ -273,8 +280,10 @@ def step(state: State) -> State | str:
                             case _:
                                 raise NotImplementedError(f"Don't know how to handle arrays of type {v.type.contains} passed as input")
 
-                        state.heap_append(jvm.Value.array(v.type.contains, value))
+                        idx = state.heap_append(jvm.Value.array(v.type.contains, value))
                         v = jvm.Value.reference(idx)
+                    case jvm.Value(type=jvm.Reference(), value=value):
+                        pass
                     case _:
                         raise NotImplementedError(f"Don't know how to handle {v}")
                 new_frame.locals[i] = v
@@ -282,6 +291,120 @@ def step(state: State) -> State | str:
             frame.pc += 1
             state.frames.push(new_frame)
             return state
+        case jvm.InvokeVirtual(method=m):
+            match m.classname.name:
+                case "java/lang/String":
+                    match m.extension.name:
+                        case "length":
+                            ref = frame.stack.pop()
+                            assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                            v = state.heap[ref.value]
+                            result = jvm.Value.int(virtual_methods.stringLength(v))
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+                        case "charAt":
+                            index = frame.stack.pop()
+                            assert index.type == jvm.Int(), f"Expected int, got {index.type}"
+                            ref = frame.stack.pop()
+                            assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                            v = state.heap[ref.value]
+                            result = virtual_methods.stringCharAt(v, index.value)
+                            if result == "StringIndexOutOfBoundsException":
+                                return "out of bounds"
+                            frame.pc += 1
+                            frame.stack.push(jvm.Value.char(result))
+                            return state
+                        case "equals":
+                            ref2 = frame.stack.pop()
+                            assert ref2.type == jvm.Reference(), f"Expected reference, got {ref2.type}"
+                            v2 = state.heap[ref2.value]
+                            ref1 = frame.stack.pop()
+                            assert ref1.type == jvm.Reference(), f"Expected reference, got {ref1.type}"
+                            v1 = state.heap[ref1.value]
+                            result = jvm.Value.int(1 if virtual_methods.stringEquals(v1, v2) else 0)
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+                        case "substring":
+                            if len(m.extension.params) == 1:
+                                val = frame.stack.pop()
+                                assert val.type == jvm.Int(), f"Expected integer, got {val.type}"
+                                ref = frame.stack.pop()
+                                assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                                s = state.heap[ref.value]
+                                result = virtual_methods.stringSubstring(s, val.value)
+                            else:
+                                higher = frame.stack.pop()
+                                assert higher.type == jvm.Int(), f"Expected integer, got {higher.type}"
+                                lower = frame.stack.pop()
+                                assert lower.type == jvm.Int(), f"Expected integer, got {lower.type}"
+                                ref = frame.stack.pop()
+                                assert ref.type == jvm.Reference(), f"Expected reference, got {ref.type}"
+                                s = state.heap[ref.value]
+                                result = virtual_methods.stringSubstring(s, lower.value, higher.value)
+                            
+                            if result == "StringIndexOutOfBoundsException":
+                                return "out of bounds"
+
+                            idx = state.heap_append(result)
+
+                            frame.pc += 1
+                            frame.stack.push(jvm.Value.reference(idx))
+                            return state
+
+                        case "indexOf":
+                            target = frame.stack.pop()
+
+                            match target.type:
+                                case jvm.Reference():
+                                    target = state.heap[target.value]
+                                case jvm.Int():
+                                    target = chr(target.value)
+                                case t:
+                                    assert False, f"Expected reference or int, got {t}"
+
+                            source = frame.stack.pop()
+                            assert source.type == jvm.Reference(), f"Expected reference, got {source.type}"
+                            source = state.heap[source.value]
+
+                            result = jvm.Value.int(virtual_methods.stringIndexOf(source, target))
+
+                            frame.pc += 1
+                            frame.stack.push(result)
+                            return state
+
+                        case name:
+                            raise NotImplementedError(f"Don't know how to handle String method \"{name}\"")
+                case c:
+                    raise NotImplementedError(f"Don't know how to handle invokevirtual of classname \"{c}\"")
+        case jvm.InvokeDynamic(method=m):
+            # NOTE: this is very hacky
+
+            # find bootstrap entry in the class that contains the currently executing method
+            cls_json = suite.findclass(frame.pc.method.classname) 
+            bm = cls_json["bootstrapmethods"][opr.index]
+
+            match m.classname.name:
+                case "makeConcatWithConstants":
+                    args = [frame.stack.pop() for _ in range(len(m.extension.params))][::-1]  # pop all arguments and reverse to get the right order
+                    
+                    # TODO: handle non-reference types
+                    args = [state.heap[arg.value] for arg in args]
+
+                    recipe = bm["method"]["args"][0]["value"]
+
+                    # TODO: makeConcatWithConstants should probably have access to the jvm types in some format
+                    # whether that being jvm.Type or having the args as tuples of (type_repr, value)
+                    # because python e.g. does not distinguish between integer types like JVM does
+                    result = dynamic_methods.makeConcatWithConstants(recipe, args)
+                    idx = state.heap_append(result)
+                    frame.stack.push(jvm.Value.reference(idx))
+                    frame.pc += 1
+                    return state                    
+                case c:
+                    raise NotImplementedError(f"Don't know how to handle invokedynamic of classname \"{c}\"")
+
         case jvm.Throw():
             v1 = frame.stack.pop()
             if state.heap[v1.value] == "java/lang/AssertionError":
@@ -303,6 +426,10 @@ def step(state: State) -> State | str:
                 return "null pointer"
 
             arr = state.heap[ref.value]
+
+            if arr == None:
+                return "null pointer"
+            
             assert v.type == arr.type.contains, f"Expected {arr.type}, got {v.type}"
             if len(arr.value) <= idx.value:
                 return "out of bounds"
@@ -346,8 +473,13 @@ def step(state: State) -> State | str:
             
             if ref.value == None:
                 return "null pointer"
+            
+            arr = state.heap[ref.value]
 
-            frame.stack.push(jvm.Value.int(len(state.heap[ref.value].value)))
+            if arr == None:
+                return "null pointer"
+
+            frame.stack.push(jvm.Value.int(len(arr.value)))
 
             frame.pc += 1
             return state
@@ -385,10 +517,18 @@ def execute(methodid, input):
                 idx = heap_items
                 heap_items += 1
                 v = jvm.Value.reference(idx)
+            case jvm.Value(type=jvm.Object(name), value=value):
+                if name.name != "java/lang/String":
+                    raise NotImplementedError("Don't know how to handle objects of name {name.name}")
+               
+                value = value[1:-1]  # Strings keep their quotations marks from parser
+                heap[heap_items] = value
+                idx = heap_items
+                heap_items += 1
+                v = jvm.Value.reference(idx)
             case _:
                 raise NotImplementedError(f"Don't know how to handle {v}")
         frame.locals[i] = v
-
     state = State(heap, heap_items, Stack.empty().push(frame))
 
     for x in range(1000000):
