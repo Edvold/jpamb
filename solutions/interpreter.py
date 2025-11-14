@@ -7,6 +7,7 @@ import sys
 from loguru import logger
 
 from SignSet import SignSet, TOP, BOT
+from LengthAbstraction import LenInterval
 AValue = SignSet
 from typing import Generic, TypeVar
 T = TypeVar("T")
@@ -138,6 +139,16 @@ class AFrame:
 class AState:
     frames: Stack[AFrame]    
     status: str = "ok"        # possible statuses: "ok" / "divide by zero" /  "assertion" / ...
+    aheap: dict[int, LenInterval] = None # asbtract heap
+
+    def __post_init__(self):
+        if self.aheap is None:
+            self.aheap = {}
+
+# shallow copy 
+def with_heap(fr: AFrame, aheap: dict[int, LenInterval]) -> AState:
+    return AState(frames=Stack.empty().push(fr), status="ok", aheap=dict(aheap))
+
 
 
 def clone_frame(fr: AFrame) -> AFrame:
@@ -162,7 +173,38 @@ def pc_key(pc: PC) -> tuple[jvm.AbsMethodID, int]:
 def key_of(fr: AFrame) -> tuple[jvm.AbsMethodID, int]:
     return (fr.pc.method, fr.pc.offset)
 
-def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
+def not_negative_interval_from_sign(s: SignSet) -> LenInterval:
+    if s == BOT:
+        return LenInterval.top()
+    if s.may_be_neg():
+        return LenInterval.top()
+    if s.may_be_zero():
+        return LenInterval.const(0)
+    if s.may_be_pos():
+        return LenInterval(1, 10**12)
+    
+    return LenInterval(0, 10**12)
+
+def interval_to_sign(L: LenInterval) -> SignSet:
+    z = (L.lo == 0 and L.hi == 0)
+    if z: 
+        return SignSet.zero()
+    if L.lo >= 1:
+        return SignSet.pos()
+    
+    return SignSet.zero() | SignSet.pos()
+
+def index_interval_from_sign(s: SignSet) -> tuple[int, int]:
+    if s.zero:
+        return(0, 0)
+    if s.pos:
+        return(1, 10**12)
+    if s.may_be_neg() and not s.may_be_pos() and not s.zero:
+        return (-10**12, -1)
+    
+    return (-10**12, 10**12)
+
+def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]: 
     out: dict[PC, AState | str] = {}
 
     def put(pc: PC, val: AState | str):
@@ -175,7 +217,19 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
             out[k] = prev if isinstance(prev, str) else val
             return
         a, b = prev.frames.peek(), val.frames.peek()
-        out[k] = AState(frames=Stack.empty().push(join_frames(a, b)))
+        joined_frame = AState(frames=Stack.empty().push(join_frames(a, b)), status="ok")
+
+        joined_frame.status = prev.status if prev.status != "ok" else val.status
+
+        joined_heap = dict(prev.aheap)
+        for ref, L in val.aheap.items():
+            if ref in joined_heap:
+                joined_heap[ref] = joined_heap[ref].join(L)
+            else:
+                joined_heap[ref] = L
+        joined_frame.aheap = joined_heap
+
+        out[k] = joined_frame
 
     for pc, entry in states_at_pc.items():
         assert isinstance(entry, AState)
@@ -184,6 +238,11 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
 
         def succ(newf: AFrame, status: str = "ok"):
             put(newf.pc, AState(frames=Stack.empty().push(newf), status=status))
+
+        def succ_with_heap(newf: AFrame, heap: dict[int, LenInterval], status: str = "ok"):
+            put(newf.pc, AState(frames=Stack.empty().push(newf), status=status, aheap=dict(heap)))
+
+        
 
         match opr:
             case jvm.Push(value=v):
@@ -311,6 +370,82 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                 nf2 = clone_frame(frame); 
                 nf2.pc += 1; 
                 succ(nf2)
+
+            case jvm.NewArray(type=type, dim=dim):
+                if not frame.stack:
+                    continue
+                nf = clone_frame(frame)
+                size_sign = nf.stack.pop()
+
+                L = not_negative_interval_from_sign(size_sign)
+
+                # allocating abstract reference id
+                next_ref = max(entry.aheap.keys(), default=-1) + 1
+
+                nf.stack.push(TOP)
+
+                nf.pc += 1
+
+                new_heap = dict(entry.aheap)
+                new_heap[next_ref] = L
+                succ_with_heap(nf, new_heap)
+
+            case jvm.ArrayLength():
+                if not frame.stack:
+                    continue
+                nf = clone_frame(frame)
+                aref = nf.stack.pop()
+
+                L = LenInterval.top()
+
+                nf.stack.push(interval_to_sign(L))
+                nf.pc += 1
+                succ_with_heap(nf, entry.aheap)
+
+            case jvm.ArrayLoad(type=type):
+                if len(frame.stack.items) < 2:
+                    continue
+                nf = clone_frame(frame)
+                idx_sign = nf.stack.pop()
+                aref = nf.stack.pop()
+
+                L = LenInterval.top()
+
+                idx_min, idx_max = index_interval_from_sign(idx_sign)
+                may_in, may_oob = L.may_contain_index(idx_min, idx_max)
+
+                nf_ok = clone_frame(nf)
+                nf_ok.stack.push(TOP)
+                nf_ok += 1
+                if may_in:
+                    succ_with_heap(nf_ok, entry.aheap)
+
+                if may_oob:
+                    nf_err = clone_frame(nf)
+                    nf_err.pc += 1
+                    succ_with_heap(nf_err, entry.aheap, status="out of bounds")
+
+            case jvm.ArrayStore(type=jvm.Int()):
+                if len(frame.stack.items) < 3: 
+                    continue
+                nf = clone_frame(frame)
+                v_sign = nf.stack.pop()
+                idx_sign = nf.stack.pop()
+                aref = nf.stack.pop()
+
+                L = LenInterval.top()
+
+                idx_min, idx_max = index_interval_from_sign(idx_sign)
+                may_in, may_oob = L.may_contain_index(idx_min, idx_max)
+
+                nf_ok = clone_frame(nf); nf_ok.pc += 1
+                if may_in:
+                    succ_with_heap(nf_ok, entry.aheap)
+                if may_oob:
+                    nf_err = clone_frame(nf); nf_err.pc += 1
+                    succ_with_heap(nf_err, entry.aheap, status="out of bounds")
+
+
             
             case jvm.Return(type=None):
                 continue
@@ -632,16 +767,21 @@ def _join_states(prev: AState | str, cur: AState | str) -> AState | str:
         return cur
     a, b = prev.frames.peek(), cur.frames.peek()
     jf = join_frames(a, b)
+    status = prev.status if prev.status != "ok" else cur.status
+    joined_heap = dict(prev.aheap)
+    for ref, L in cur.aheap.items():
+        joined_heap[ref] = joined_heap.get(ref, L).join(L) if ref in joined_heap else L
     return AState(frames=Stack.empty().push(jf),
-                  status=prev.status if prev.status != "ok" else cur.status)
+                  status=prev.status if prev.status != "ok" else cur.status, aheap=joined_heap)
 
 def _state_equal(a: AState | str, b: AState | str) -> bool:
     if isinstance(a, str) or isinstance(b, str):
         return a == b
     af, bf = a.frames.peek(), b.frames.peek()
+    heaps_equal = (a.aheap.keys() == b.aheap.keys() and all(a.aheap[k] == b.aheap[k] for k in a.heap))
     return (af.pc.method == bf.pc.method and af.pc.offset == bf.pc.offset
             and af.locals == bf.locals and af.stack.items == bf.stack.items
-            and a.status == b.status)
+            and a.status == b.status and heaps_equal)
 
 def execute_A(methodid, input):
     af = AFrame.from_method(methodid)
@@ -650,7 +790,7 @@ def execute_A(methodid, input):
         af.locals[i] = av
 
     start_pc = af.pc
-    start = AState(frames=Stack.empty().push(af), status="ok")
+    start = AState(frames=Stack.empty().push(af), status="ok", aheap={})
 
     k0 = pc_key(af.pc)
 
@@ -694,7 +834,9 @@ def dump_A(seen: dict[tuple[jvm.AbsMethodID, int], AState | str]):
             fr = v.frames.peek()
             locs = ", ".join(f"{i}:{val}" for i, val in sorted(fr.locals.items()))
             stack = "[" + ", ".join(str(s) for s in fr.stack.items) + "]"
-            print(f"{pc_s}: status={v.status}  locals={{ {locs} }}  stack={stack}")
+            heap_s = ", ".join(f"{r}:{L}" for r, L in sorted(v.aheap.items()))
+            print(f"{pc_s}: status={v.status}  locals={{ {locs} }}  stack={stack}  heap={{ {heap_s} }}")
+
 
 
 if __name__ == "__main__":
