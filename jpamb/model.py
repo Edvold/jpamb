@@ -19,7 +19,6 @@ import subprocess
 from typing import Iterable
 
 from jpamb import jvm
-from jpamb import timer
 
 
 @dataclass(frozen=True, order=True)
@@ -108,7 +107,6 @@ def _check(reason, failfast=False):
 
 @dataclass(frozen=True)
 class AnalysisInfo:
-
     name: str
     version: str
     group: str
@@ -248,7 +246,7 @@ class Suite:
     @property
     def stats_folder(self) -> Path:
         """The folder to place the statistics about the repository"""
-        return self.workfolder / "stats"
+        return self.workfolder / "target" / "stats"
 
     @property
     def classfiles_folder(self) -> Path:
@@ -278,7 +276,7 @@ class Suite:
 
     @property
     def decompiled_folder(self) -> Path:
-        return self.workfolder / "decompiled"
+        return self.workfolder / "target" / "decompiled"
 
     def decompiledfiles(self) -> Iterable[Path]:
         yield from self.decompiled_folder.glob("**/*.json")
@@ -303,11 +301,22 @@ class Suite:
 
             assert params == methodid.extension.params, (
                 f"Mulitple methods with same name {method['name']!r}, "
-                f"but different params {params} from {method["params"]} and {methodid.extension.params}"
+                f"but different params {params} from {method['params']} and {methodid.extension.params}"
             )
             break
         else:
             raise IndexError(f"Could not find {methodid}")
+        return method
+    
+    def find_bootstrap_methods(self, classname) -> jvm:
+        bootstrap_methods = self.findclass(classname)["bootstrapmethods"]
+        
+        bootstrap = dict()
+        for method in bootstrap_methods:
+            index = method["index"]
+            abs_method_id = jvm.AbsMethodID.from_json(method["method"])
+            bootstrap[index] = abs_method_id
+
         return method
 
     def method_opcodes(self, method: jvm.Absolute[jvm.MethodID]) -> list[jvm.Opcode]:
@@ -352,38 +361,23 @@ class Suite:
 
     def checkhealth(self, failfast=False):
         """Checks the health of the repository through a sequence of tests"""
+        from jpamb import timer
 
         def check(msg):
             return _check(msg, failfast)
 
         with check("The path"):
-            with check("java"):
-                java = shutil.which("java")
-                assert java is not None, "java not on path"
+            with check("docker"):
+                dockerbin = shutil.which("podman") or shutil.which("docker")
+                assert dockerbin is not None, "java not on path"
                 res = subprocess.run(
-                    [java, "--version"], check=True, stdout=subprocess.PIPE, text=True
+                    [dockerbin, "--version"],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    text=True,
                 )
-                logger.debug(f"java --version\n{res}")
-                assert res.returncode == 0, "java --version failed"
-                assert re.search(
-                    r"21\.0\.\d*", res.stdout
-                ), f"java wrong version\n{res.stdout}"
-            with check("JAVA_HOME"):
-                assert os.getenv("JAVA_HOME") is not None, "JAVA_HOME not set."
-                home = Path(os.getenv("JAVA_HOME"))
-                assert home.exists(), f"JAVA_HOME=${home} does not exist"
-            with check("mvn"):
-                mvn = shutil.which("mvn")
-                assert mvn is not None, "mvn not on path"
-                res = subprocess.run(
-                    [mvn, "--version"], check=True, stdout=subprocess.PIPE, text=True
-                )
-                logger.debug(f"mvn --version\n{res}")
-                assert res.returncode == 0, "mvn --version failed"
-                assert "3.9.11" in res.stdout, f"mvn wrong version\n{res}"
-            with check("jvm2json"):
-                jvm2json = shutil.which("jvm2json")
-                assert jvm2json is not None, "jvm2json not on path"
+                logger.debug(f"{dockerbin} --version\n{res}")
+                assert res.returncode == 0, "dockerbin --version failed"
 
         with check("The timer"):
             x = timer.sieve(1000)

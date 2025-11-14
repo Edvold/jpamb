@@ -104,6 +104,13 @@ class Type(ABC):
                     r = Float()
                 case "D":
                     r = Double()
+                case "L":
+                    i += 1
+                    name = ""
+                    while input[i] != ";":
+                        name += input[i]
+                        i += 1
+                    r = Object(ClassName.decode(name))
                 case "[":  # ]
                     stack.append(Array)
                     i += 1
@@ -143,12 +150,24 @@ class Type(ABC):
                     return Reference()
                 case "boolean":
                     return Boolean()
+                case "string":
+                    return Reference()
         if "base" in json:
             return Type.from_json(json["base"])
         if "kind" in json:
             match json["kind"]:
                 case "array":
                     return Array(Type.from_json(json["type"]))
+                case "class":
+                    match json["name"]:
+                        case "java/lang/String": 
+                            return Object(ClassName.decode("java/lang/String"))
+                        case "java/lang/Object":
+                            return Object(ClassName.decode("java/lang/Object"))
+                        case name:
+                            raise NotImplementedError(
+                                f"Unknown class name {name}, in Type.from_json: {json!r}"
+                            )
                 case kind:
                     raise NotImplementedError(
                         f"Unknown kind {kind}, in Type.from_json: {json!r}"
@@ -541,8 +560,12 @@ class AbsMethodID(Absolute[MethodID]):
 
     @classmethod
     def from_json(cls, json: dict) -> "Self":
+
+        # Invoke dynamic doesn't have a "ref" field but instead uses the "name" field directly
+        classname = ClassName.decode(json["ref"]["name"]) if "ref" in json else ClassName.decode(json["name"])
+
         return cls(
-            classname=ClassName.decode(json["ref"]["name"]),
+            classname=classname,
             extension=MethodID(
                 name=json["name"],
                 params=ParameterType.from_json(json["args"]),
@@ -604,6 +627,8 @@ class Value:
                         return f"[C:{chars}]"
                     case _:
                         raise NotImplementedError()
+            case Object(name):
+                return str(self.value)
             case _:
                 raise NotImplementedError(f"Cannot encode {self.type}")
 
@@ -627,6 +652,10 @@ class Value:
     @classmethod
     def reference(cls, index: int) -> Self:
         return cls(Reference(), index)
+
+    @classmethod
+    def string(cls, name: str, s: str) -> Self:
+        return cls(Object(ClassName.decode(name)), s)
 
     @classmethod
     def from_json(cls, json: dict | None) -> Self:
@@ -667,6 +696,7 @@ class ValueParser:
             ("INT", r"-?\d+"),
             ("BOOL", r"true|false"),
             ("CHAR", r"'[^']'"),
+            ("STRING", r'"[^"]*"'),
             ("COMMA", r","),
             ("SKIP", r"[ \t]+"),
         ]
@@ -716,6 +746,8 @@ class ValueParser:
                 return Value.boolean(self.parse_bool())
             case "OPEN_ARRAY":
                 return self.parse_array()
+            case "STRING":
+                return self.parse_string()
         self.expected("char")
 
     def parse_int(self):
@@ -729,6 +761,10 @@ class ValueParser:
     def parse_char(self):
         tok = self.expect("CHAR")
         return tok.value[1]
+    
+    def parse_string(self):
+        tok = self.expect("STRING")
+        return Value(Object(ClassName.decode("java/lang/String")), tok.value)
 
     def parse_array(self):
         key = self.expect("OPEN_ARRAY")

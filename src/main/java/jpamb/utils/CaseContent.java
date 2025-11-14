@@ -25,6 +25,10 @@ public record CaseContent(
         chars.add("'" + x + "'");
       }
       return "[C:" + String.join(", ", chars) + "]";
+    } else if (obj instanceof Character) {
+      return "'" + obj + "'";
+    } else if (obj instanceof String) {
+      return "\"" + obj + "\"";
     } else {
       return obj.toString();
     }
@@ -50,7 +54,8 @@ public record CaseContent(
     SUCCESS,
     NON_TERMINATION,
     NULL_POINTER,
-    OUT_OF_BOUNDS;
+    OUT_OF_BOUNDS,
+    VULNERABLE;
 
     public static ResultType parse(String string) {
       if (string.equals("*")) {
@@ -65,6 +70,8 @@ public record CaseContent(
         return DIVIDE_BY_ZERO;
       } else if (string.equals("ok")) {
         return SUCCESS;
+      } else if (string.equals("vulnerable")) {
+        return VULNERABLE;
       } else {
         throw new RuntimeException("Invalid result type: " + string);
       }
@@ -84,6 +91,8 @@ public record CaseContent(
           return "*";
         case SUCCESS:
           return "ok";
+        case VULNERABLE:
+          return "vulnerable";
         default:
           throw new RuntimeException("Unexpected");
       }
@@ -96,7 +105,7 @@ public record CaseContent(
         return ASSERTION_ERROR;
       } else if (cause instanceof TimeoutException) {
         return NON_TERMINATION;
-      } else if (cause instanceof ArrayIndexOutOfBoundsException) {
+      } else if (cause instanceof ArrayIndexOutOfBoundsException || cause instanceof IndexOutOfBoundsException) {
         return OUT_OF_BOUNDS;
       } else if (cause instanceof NullPointerException) {
         return NULL_POINTER;

@@ -1,6 +1,7 @@
 import click
 from pathlib import Path
 import shlex
+import shutil
 import math
 import sys
 import json
@@ -215,7 +216,7 @@ def cli(ctx, workdir: Path, verbose):
 @cli.command()
 @click.pass_obj
 def checkhealth(suite):
-    """Check that the repostiory is setup correctly"""
+    """Check that the repository is setup correctly"""
     suite.checkhealth()
 
 
@@ -495,6 +496,12 @@ def evaluate(ctx, program, report, timeout, iterations, with_python):
 
 @cli.command()
 @click.option(
+    "-D",
+    "--docker",
+    help="the docker container to build with.",
+    default="ghcr.io/kalhauge/jvm2json:jdk-latest",
+)
+@click.option(
     "--compile / --no-compile",
     help="compile the java source files.",
     default=None,
@@ -515,7 +522,7 @@ def evaluate(ctx, program, report, timeout, iterations, with_python):
     default=None,
 )
 @click.pass_obj
-def build(suite, compile, decompile, document, test):
+def build(suite, compile, decompile, document, test, docker):
     """Rebuild all benchmarks."""
 
     if not any(s for s in [compile, decompile, document, test]):
@@ -524,10 +531,28 @@ def build(suite, compile, decompile, document, test):
         document = document is None
         test = test is None
 
+    dockerbin = shutil.which("podman") or shutil.which("docker")
+
+    if not dockerbin:
+        raise click.UsageError("No docker or podman on PATH")
+
+    log.info(f"Using docker: {dockerbin}")
+
+    cmd = [
+        dockerbin,
+        "run",
+        "--rm",
+        "-v",
+        f"{suite.workfolder}:/workspace",
+        docker,
+    ]
+
     if compile:
         log.info("Compiling")
         run(
-            ["mvn", "compile"],
+            cmd
+            + ["javac", "-d", "target/classes"]
+            + list(a.relative_to(suite.workfolder) for a in suite.sourcefiles()),
             logerr=log.warning,
             logout=log.info,
             timeout=600,
@@ -536,13 +561,13 @@ def build(suite, compile, decompile, document, test):
         log.info("Building Stats")
 
         res, x = run(
-            ["java", "-cp", "target/classes", "jpamb.Runtime"],
+            cmd + ["java", "-cp", "target/classes", "jpamb.Runtime"],
             logout=log.info,
             logerr=log.debug,
             timeout=60,
         )
-
-        Path("stats/cases.txt").write_text("\n".join(res.splitlines().sorted()))
+        suite.case_file.parent.mkdir(exist_ok=True, parents=True)
+        suite.case_file.write_text("\n".join(sorted(res.splitlines())))
 
         # TODO: Compute distribution.csv
 
@@ -551,14 +576,17 @@ def build(suite, compile, decompile, document, test):
         for cl in suite.classes():
             log.info(f"Decompiling {cl}")
             res, t = run(
-                [
+                cmd
+                + [
                     "jvm2json",
                     "-s",
-                    suite.classfile(cl),
+                    suite.classfile(cl).relative_to(suite.workfolder),
                 ],
                 logerr=log.warning,
             )
-            with open(suite.decompiledfile(cl), "w") as f:
+            file = suite.decompiledfile(cl)
+            file.parent.mkdir(exist_ok=True, parents=True)
+            with open(file, "w") as f:
                 json.dump(json.loads(res), f, indent=2, sort_keys=True)
         log.success("Done decompiling")
 
@@ -631,10 +659,11 @@ def build(suite, compile, decompile, document, test):
 
             try:
                 res, x = run(
-                    [
+                    cmd
+                    + [
                         "java",
                         "-cp",
-                        folder,
+                        folder.relative_to(suite.workfolder),
                         "-ea",
                         "jpamb.Runtime",
                         case.methodid.encode(),
