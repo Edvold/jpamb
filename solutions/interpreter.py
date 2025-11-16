@@ -418,7 +418,7 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
 
                 nf_ok = clone_frame(nf)
                 nf_ok.stack.push(TOP)
-                nf_ok += 1
+                nf_ok.pc += 1
                 if may_in:
                     succ_with_heap(nf_ok, entry.aheap)
 
@@ -919,7 +919,8 @@ def _state_equal(a: AState | str, b: AState | str) -> bool:
     if isinstance(a, str) or isinstance(b, str):
         return a == b
     af, bf = a.frames.peek(), b.frames.peek()
-    heaps_equal = (a.aheap.keys() == b.aheap.keys() and all(a.aheap[k] == b.aheap[k] for k in a.heap))
+    heaps_equal = (
+    a.aheap.keys() == b.aheap.keys() and all(a.aheap[k] == b.aheap[k] for k in a.aheap))
     return (af.pc.method == bf.pc.method and af.pc.offset == bf.pc.offset
             and af.locals == bf.locals and af.stack.items == bf.stack.items
             and a.status == b.status and heaps_equal)
@@ -967,10 +968,14 @@ def execute_A(methodid, input):
 
 # output 
 def dump_A(seen: dict[tuple[jvm.AbsMethodID, int], AState | str]):
+    final_status = "ok" 
+
     for (method, offset), v in sorted(seen.items(), key=lambda it: (str(it[0][0]), it[0][1])):
         pc_s = f"{method}:{offset}"
         if isinstance(v, str):
             print(f"{pc_s}: <{v}>")
+            if v != "ok":
+                final_status = v
         else:
             fr = v.frames.peek()
             locs = ", ".join(f"{i}:{val}" for i, val in sorted(fr.locals.items()))
@@ -978,16 +983,22 @@ def dump_A(seen: dict[tuple[jvm.AbsMethodID, int], AState | str]):
             heap_s = ", ".join(f"{r}:{L}" for r, L in sorted(v.aheap.items()))
             print(f"{pc_s}: status={v.status}  locals={{ {locs} }}  stack={stack}  heap={{ {heap_s} }}")
 
+            if v.status != "ok":
+                final_status = v.status
+
+    print(final_status)
+
+
 
 
 if __name__ == "__main__":
     methodid, input = jpamb.getcase()
     # Concrete run
-    concrete = execute(methodid, input)
-    print("== concrete ==", concrete)
+    #concrete = execute(methodid, input)
+    #print(concrete)
 
     # Abstract run
     abstract_seen = execute_A(methodid, input)
-    print("== abstract ==")
+    #print("== abstract ==")
     dump_A(abstract_seen)
     

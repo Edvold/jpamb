@@ -27,3 +27,22 @@ class LenInterval:
         lo = max(0, self.lo + k)  
         hi = INF if self.hi >= INF else self.hi + k
         return LenInterval(lo, hi)
+    
+    def may_contain_index(self, idx_min: int, idx_max: int) -> tuple[bool, bool]:
+
+        l_min = self.lo
+        l_max = self.hi
+
+        if idx_max < 0:
+            may_in = False
+        else:
+            nn_min = max(idx_min, 0)
+            nn_max = idx_max
+            if nn_min > nn_max:
+                may_in = False
+            else:
+                may_in = (l_max > nn_min)
+                
+        may_oob = (idx_min < 0) or (idx_max >= l_min)
+
+        return (may_in, may_oob)
