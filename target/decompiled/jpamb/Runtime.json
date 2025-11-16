@@ -363,7 +363,7 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 18,
+            "line": 17,
             "offset": 0
           }
         ],
@@ -5589,9 +5589,24 @@
             }
           },
           {
+            "offset": 18,
+            "opr": "push",
+            "value": {
+              "type": "class",
+              "value": {
+                "kind": "class",
+                "name": "jpamb/cases/Vulnerable"
+              }
+            }
+          },
+          {
             "access": "static",
             "method": {
               "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/Object"
+                },
                 {
                   "kind": "class",
                   "name": "java/lang/Object"
@@ -5628,7 +5643,7 @@
                 "name": "java/util/List"
               }
             },
-            "offset": 18,
+            "offset": 21,
             "opr": "invoke"
           },
           {
@@ -5640,12 +5655,12 @@
                 "name": "java/util/List"
               }
             },
-            "offset": 21,
+            "offset": 24,
             "opr": "put",
             "static": true
           },
           {
-            "offset": 24,
+            "offset": 27,
             "opr": "return",
             "type": null
           }
@@ -5653,12 +5668,12 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 19,
+            "line": 18,
             "offset": 0
           }
         ],
         "max_locals": 0,
-        "max_stack": 6,
+        "max_stack": 7,
         "stack_map": null
       },
       "default": null,

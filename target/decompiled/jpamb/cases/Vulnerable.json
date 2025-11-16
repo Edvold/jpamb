@@ -11,7 +11,7 @@
         "args": [
           {
             "type": "string",
-            "value": "SELECT * FROM users WHERE username=\u0001 AND password=\u0001;"
+            "value": "SELECT * FROM db WHERE username=\u0001"
           }
         ],
         "handle": {
@@ -63,7 +63,7 @@
         "args": [
           {
             "type": "string",
-            "value": "SELECT * FROM users WHERE username='\u0001' AND password='\u0001';"
+            "value": "SELECT * FROM db WHERE username='\u0001' AND password='\u0001';"
           }
         ],
         "handle": {
@@ -111,39 +111,8 @@
     }
   ],
   "enclosingmethod": null,
-  "fields": [
-    {
-      "access": [
-        "private",
-        "final"
-      ],
-      "annotations": [],
-      "name": "mysql",
-      "type": {
-        "annotations": [],
-        "args": [],
-        "inner": {
-          "annotations": [],
-          "args": [],
-          "inner": null,
-          "name": "MySQLEngine"
-        },
-        "kind": "class",
-        "name": "jpamb/cases/Vulnerable"
-      },
-      "value": null
-    }
-  ],
+  "fields": [],
   "innerclasses": [
-    {
-      "access": [
-        "private",
-        "static"
-      ],
-      "class": "jpamb/cases/Vulnerable$MySQLEngine",
-      "name": "MySQLEngine",
-      "outer": "jpamb/cases/Vulnerable"
-    },
     {
       "access": [
         "public",
@@ -187,51 +156,7 @@
             "opr": "invoke"
           },
           {
-            "index": 0,
             "offset": 4,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "class": "jpamb/cases/Vulnerable$MySQLEngine",
-            "offset": 5,
-            "opr": "new"
-          },
-          {
-            "offset": 8,
-            "opr": "dup",
-            "words": 1
-          },
-          {
-            "access": "special",
-            "method": {
-              "args": [],
-              "is_interface": false,
-              "name": "<init>",
-              "ref": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              },
-              "returns": null
-            },
-            "offset": 9,
-            "opr": "invoke"
-          },
-          {
-            "field": {
-              "class": "jpamb/cases/Vulnerable",
-              "name": "mysql",
-              "type": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              }
-            },
-            "offset": 12,
-            "opr": "put",
-            "static": false
-          },
-          {
-            "offset": 15,
             "opr": "return",
             "type": null
           }
@@ -239,20 +164,12 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 9,
+            "line": 5,
             "offset": 0
-          },
-          {
-            "line": 10,
-            "offset": 2
-          },
-          {
-            "line": 11,
-            "offset": 7
           }
         ],
         "max_locals": 1,
-        "max_stack": 3,
+        "max_stack": 1,
         "stack_map": null
       },
       "default": null,
@@ -267,7 +184,8 @@
     },
     {
       "access": [
-        "public"
+        "public",
+        "static"
       ],
       "annotations": [
         {
@@ -284,7 +202,7 @@
                     "values": {
                       "value": {
                         "type": "string",
-                        "value": "('john', 'password') -> tainted"
+                        "value": "(\"john\") -> vulnerable"
                       }
                     }
                   }
@@ -296,7 +214,7 @@
                     "values": {
                       "value": {
                         "type": "string",
-                        "value": "('admin' OR 1=1, '') -> tainted"
+                        "value": "(\"admin OR 1=1\") -> vulnerable"
                       }
                     }
                   }
@@ -310,14 +228,8 @@
         "annotations": [],
         "bytecode": [
           {
-            "index": 1,
+            "index": 0,
             "offset": 0,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "index": 2,
-            "offset": 1,
             "opr": "load",
             "type": "ref"
           },
@@ -329,10 +241,6 @@
                 {
                   "kind": "class",
                   "name": "java/lang/String"
-                },
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
                 }
               ],
               "name": "makeConcatWithConstants",
@@ -341,42 +249,23 @@
                 "name": "java/lang/String"
               }
             },
-            "offset": 2,
+            "offset": 1,
             "opr": "invoke"
           },
           {
-            "index": 3,
-            "offset": 7,
+            "index": 1,
+            "offset": 6,
             "opr": "store",
             "type": "ref"
           },
           {
-            "index": 0,
-            "offset": 8,
+            "index": 1,
+            "offset": 7,
             "opr": "load",
             "type": "ref"
           },
           {
-            "field": {
-              "class": "jpamb/cases/Vulnerable",
-              "name": "mysql",
-              "type": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              }
-            },
-            "offset": 9,
-            "opr": "get",
-            "static": false
-          },
-          {
-            "index": 3,
-            "offset": 12,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
+            "access": "static",
             "method": {
               "args": [
                 {
@@ -384,18 +273,19 @@
                   "name": "java/lang/String"
                 }
               ],
-              "name": "executeQuery",
+              "is_interface": false,
+              "name": "sink",
               "ref": {
                 "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
+                "name": "jpamb/cases/Vulnerable"
               },
               "returns": null
             },
-            "offset": 13,
+            "offset": 8,
             "opr": "invoke"
           },
           {
-            "offset": 16,
+            "offset": 11,
             "opr": "return",
             "type": null
           }
@@ -403,20 +293,20 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 19,
+            "line": 10,
             "offset": 0
           },
           {
-            "line": 23,
-            "offset": 4
+            "line": 12,
+            "offset": 3
           },
           {
-            "line": 24,
-            "offset": 8
+            "line": 13,
+            "offset": 5
           }
         ],
-        "max_locals": 4,
-        "max_stack": 2,
+        "max_locals": 2,
+        "max_stack": 1,
         "stack_map": null
       },
       "default": null,
@@ -433,17 +323,6 @@
             "name": "java/lang/String"
           },
           "visible": true
-        },
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
         }
       ],
       "returns": {
@@ -454,7 +333,8 @@
     },
     {
       "access": [
-        "public"
+        "public",
+        "static"
       ],
       "annotations": [
         {
@@ -463,7 +343,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "('anything', 'else') -> not tainted"
+              "value": "(\"anything\") -> ok"
             }
           }
         }
@@ -476,42 +356,23 @@
             "opr": "push",
             "value": {
               "type": "string",
-              "value": "SELECT * FROM users WHERE username='john' AND password='password';"
+              "value": "SELECT * FROM db WHERE username='john' AND password='password';"
             }
           },
           {
-            "index": 3,
+            "index": 1,
             "offset": 2,
             "opr": "store",
             "type": "ref"
           },
           {
-            "index": 0,
+            "index": 1,
             "offset": 3,
             "opr": "load",
             "type": "ref"
           },
           {
-            "field": {
-              "class": "jpamb/cases/Vulnerable",
-              "name": "mysql",
-              "type": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              }
-            },
-            "offset": 4,
-            "opr": "get",
-            "static": false
-          },
-          {
-            "index": 3,
-            "offset": 7,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
+            "access": "static",
             "method": {
               "args": [
                 {
@@ -519,18 +380,19 @@
                   "name": "java/lang/String"
                 }
               ],
-              "name": "executeQuery",
+              "is_interface": false,
+              "name": "sink",
               "ref": {
                 "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
+                "name": "jpamb/cases/Vulnerable"
               },
               "returns": null
             },
-            "offset": 8,
+            "offset": 4,
             "opr": "invoke"
           },
           {
-            "offset": 11,
+            "offset": 7,
             "opr": "return",
             "type": null
           }
@@ -538,20 +400,20 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 30,
+            "line": 17,
             "offset": 0
           },
           {
-            "line": 33,
+            "line": 19,
             "offset": 2
           },
           {
-            "line": 34,
-            "offset": 6
+            "line": 20,
+            "offset": 4
           }
         ],
-        "max_locals": 4,
-        "max_stack": 2,
+        "max_locals": 2,
+        "max_stack": 1,
         "stack_map": null
       },
       "default": null,
@@ -568,17 +430,6 @@
             "name": "java/lang/String"
           },
           "visible": true
-        },
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
         }
       ],
       "returns": {
@@ -589,281 +440,8 @@
     },
     {
       "access": [
-        "public"
-      ],
-      "annotations": [
-        {
-          "is_runtime_visible": true,
-          "type": "jpamb/utils/Cases",
-          "values": {
-            "value": {
-              "type": "array",
-              "value": [
-                {
-                  "type": "annotation",
-                  "value": {
-                    "type": "jpamb/utils/Case",
-                    "values": {
-                      "value": {
-                        "type": "string",
-                        "value": "('john', 'password') -> not tainted"
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "annotation",
-                  "value": {
-                    "type": "jpamb/utils/Case",
-                    "values": {
-                      "value": {
-                        "type": "string",
-                        "value": "(admin' OR 1=1--, '') -> not tainted"
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "code": {
-        "annotations": [],
-        "bytecode": [
-          {
-            "offset": 0,
-            "opr": "push",
-            "value": {
-              "type": "string",
-              "value": ""
-            }
-          },
-          {
-            "index": 3,
-            "offset": 2,
-            "opr": "store",
-            "type": "ref"
-          },
-          {
-            "index": 1,
-            "offset": 3,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "offset": 4,
-            "opr": "push",
-            "value": {
-              "type": "string",
-              "value": "john"
-            }
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/Object"
-                }
-              ],
-              "name": "equals",
-              "ref": {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              "returns": "boolean"
-            },
-            "offset": 6,
-            "opr": "invoke"
-          },
-          {
-            "condition": "eq",
-            "offset": 9,
-            "opr": "ifz",
-            "target": 12
-          },
-          {
-            "index": 2,
-            "offset": 12,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "offset": 13,
-            "opr": "push",
-            "value": {
-              "type": "string",
-              "value": "password"
-            }
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/Object"
-                }
-              ],
-              "name": "equals",
-              "ref": {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              "returns": "boolean"
-            },
-            "offset": 15,
-            "opr": "invoke"
-          },
-          {
-            "condition": "eq",
-            "offset": 18,
-            "opr": "ifz",
-            "target": 12
-          },
-          {
-            "offset": 21,
-            "opr": "push",
-            "value": {
-              "type": "string",
-              "value": "SELECT * FROM users WHERE username='john' AND password='password';"
-            }
-          },
-          {
-            "index": 3,
-            "offset": 23,
-            "opr": "store",
-            "type": "ref"
-          },
-          {
-            "index": 0,
-            "offset": 24,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "field": {
-              "class": "jpamb/cases/Vulnerable",
-              "name": "mysql",
-              "type": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              }
-            },
-            "offset": 25,
-            "opr": "get",
-            "static": false
-          },
-          {
-            "index": 3,
-            "offset": 28,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                }
-              ],
-              "name": "executeQuery",
-              "ref": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              },
-              "returns": null
-            },
-            "offset": 29,
-            "opr": "invoke"
-          },
-          {
-            "offset": 32,
-            "opr": "return",
-            "type": null
-          }
-        ],
-        "exceptions": [],
-        "lines": [
-          {
-            "line": 41,
-            "offset": 0
-          },
-          {
-            "line": 43,
-            "offset": 2
-          },
-          {
-            "line": 44,
-            "offset": 10
-          },
-          {
-            "line": 48,
-            "offset": 12
-          },
-          {
-            "line": 49,
-            "offset": 16
-          }
-        ],
-        "max_locals": 4,
-        "max_stack": 2,
-        "stack_map": [
-          {
-            "index": 12,
-            "info": [
-              {
-                "ref": {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                },
-                "type": "object"
-              }
-            ],
-            "type": "append_frame"
-          }
-        ]
-      },
-      "default": null,
-      "exceptions": [],
-      "name": "validatedSafe",
-      "params": [
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
-        },
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
-        }
-      ],
-      "returns": {
-        "annotations": [],
-        "type": null
-      },
-      "typeparams": []
-    },
-    {
-      "access": [
-        "public"
+        "public",
+        "static"
       ],
       "annotations": [
         {
@@ -872,7 +450,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(admin' OR 1=1--, '') -> sql injection"
+              "value": "(\"admin' OR 1=1--\", \"\") -> vulnerable"
             }
           }
         }
@@ -881,13 +459,13 @@
         "annotations": [],
         "bytecode": [
           {
-            "index": 1,
+            "index": 0,
             "offset": 0,
             "opr": "load",
             "type": "ref"
           },
           {
-            "index": 2,
+            "index": 1,
             "offset": 1,
             "opr": "load",
             "type": "ref"
@@ -916,38 +494,19 @@
             "opr": "invoke"
           },
           {
-            "index": 3,
+            "index": 2,
             "offset": 7,
             "opr": "store",
             "type": "ref"
           },
           {
-            "index": 0,
+            "index": 2,
             "offset": 8,
             "opr": "load",
             "type": "ref"
           },
           {
-            "field": {
-              "class": "jpamb/cases/Vulnerable",
-              "name": "mysql",
-              "type": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
-              }
-            },
-            "offset": 9,
-            "opr": "get",
-            "static": false
-          },
-          {
-            "index": 3,
-            "offset": 12,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "virtual",
+            "access": "static",
             "method": {
               "args": [
                 {
@@ -955,18 +514,19 @@
                   "name": "java/lang/String"
                 }
               ],
-              "name": "executeQuery",
+              "is_interface": false,
+              "name": "sink",
               "ref": {
                 "kind": "class",
-                "name": "jpamb/cases/Vulnerable$MySQLEngine"
+                "name": "jpamb/cases/Vulnerable"
               },
               "returns": null
             },
-            "offset": 13,
+            "offset": 9,
             "opr": "invoke"
           },
           {
-            "offset": 16,
+            "offset": 12,
             "opr": "return",
             "type": null
           }
@@ -974,19 +534,19 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 56,
+            "line": 24,
             "offset": 0
           },
           {
-            "line": 60,
+            "line": 27,
             "offset": 4
           },
           {
-            "line": 61,
-            "offset": 8
+            "line": 28,
+            "offset": 6
           }
         ],
-        "max_locals": 4,
+        "max_locals": 3,
         "max_stack": 2,
         "stack_map": null
       },
@@ -1005,6 +565,54 @@
           },
           "visible": true
         },
+        {
+          "annotations": [],
+          "type": {
+            "annotations": [],
+            "args": [],
+            "inner": null,
+            "kind": "class",
+            "name": "java/lang/String"
+          },
+          "visible": true
+        }
+      ],
+      "returns": {
+        "annotations": [],
+        "type": null
+      },
+      "typeparams": []
+    },
+    {
+      "access": [
+        "public",
+        "static"
+      ],
+      "annotations": [],
+      "code": {
+        "annotations": [],
+        "bytecode": [
+          {
+            "offset": 0,
+            "opr": "return",
+            "type": null
+          }
+        ],
+        "exceptions": [],
+        "lines": [
+          {
+            "line": 34,
+            "offset": 0
+          }
+        ],
+        "max_locals": 1,
+        "max_stack": 0,
+        "stack_map": null
+      },
+      "default": null,
+      "exceptions": [],
+      "name": "sink",
+      "params": [
         {
           "annotations": [],
           "type": {
