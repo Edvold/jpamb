@@ -89,7 +89,12 @@ def flows(ast, seen_methods, implicit_variables=set()):
                 res = set.union(res, flows(node['children'], seen_methods, implicit_variables))
             case 'method_invocation':
                 method_name = node['children'][0]['text']
-                if not method_name in seen_methods:
+                if method_name == "sink":
+                    arg_list = node['children'][1]['children']
+                    arg_idents = find_ident_in_children(arg_list)
+                    for i in arg_idents:
+                        res.add((i, "sink"))
+                elif not method_name in seen_methods:
                     seen_methods.append(method_name)
                     res = set.union(res, method_flow(method_name, seen_methods))
                 #method_args = node['children'][1]['text']
@@ -229,25 +234,64 @@ def method_flow(method_name, seen_methods): #only works for method in the same c
     for node in captures["method"]:
         body = node.child_by_field_name("body")
         method_body = body.text.decode()
-        logger.debug(param_names)
-        logger.debug(method_body)
+        # logger.debug(param_names)
+        # logger.debug(method_body)
     
     # if not body == None:
     #     for stmt in body.children:
     #         print(stmt.type, stmt.text.decode())
 
     ast_body = to_ast(body)
-    logger.debug(ast_body['children'])
+    #logger.debug(ast_body['children'])
     # for node in ast_body['children']:
     #     logger.debug(node)
     # logger.debug(f'method called: {method_name}')
     # logger.debug("-------------------\n")
     # logger.debug(ast_body)
     #param_names.append("u")
-    flow_dict = flows(ast_body['children'], seen_methods)
+    flow = flows(ast_body['children'], seen_methods)
     #logger.debug(flow_dict)
-    return flow_dict
+    # make flows transitive
 
+    flow_vars = set()
+    flow_dict = {}
+    for a,b in flow:
+        flow_vars.add(a)
+        flow_vars.add(b)
+        if a in flow_dict.keys():
+            flow_dict[a].add(b)
+        else:
+            flow_dict[a] = {b}
+    # start_len = len(flow_dict)
+    # new_len = start_len
+    # while(start_len == new_len):
+    #     for var in flow_vars:
+
+    start_len = 0
+    for v in flow_dict.values():
+        start_len += len(v)
+    len_changed = start_len > 0
+    while(len_changed):
+        for var,s in flow_dict.items():
+            for v in s:
+                flow_dict[var] = set.union(flow_dict[var],flow_dict.get(v, set()))
+        new_len = 0
+        for v in flow_dict.values():
+            new_len += len(v)
+        len_changed = start_len-new_len != 0
+        start_len = new_len
+
+    unsafe_flow = set()
+    for param in param_names:
+        if "sink" in flow_dict.get(param, {}):
+            unsafe_flow.add((param, "sink"))
+    # sink_flow_vars = set()
+    # for f_from, f_to in flow_dict:
+    #     if f.to == "sink":
+    #         sink_flow_vars.add((f_from))
+    
+
+    return unsafe_flow
 # method to handle flow through method calls
 # remember to map variable names from calls to argument names
 # perhaps name variables as classname_methodname_identifier
@@ -286,8 +330,10 @@ else:
     method_name = methodid.extension.name
 
 
-    flow_dict = method_flow(method_name, [method_name])
-    logger.debug(flow_dict)
+    flow = method_flow(method_name, [method_name])
+    #logger.debug(flow)
+    
+
 
     ok_chance = "50%"
     divide_by_zero_chance = "50%"
@@ -297,7 +343,7 @@ else:
     infinite_loop_chance = "50%"
     vulnerable = "50%"
 
-    if len(flow_dict) > 0:
+    if len(flow) > 0:
         vulnerable = "100%"
     else:
         vulnerable = "0%"
