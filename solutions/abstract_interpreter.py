@@ -2,29 +2,50 @@ import jpamb
 
 from dataclasses import dataclass
 from jpamb import jvm
-from SignSet import SignSet, TOP, BOT
+from SignSet import SignSet
+from TaintSet import TaintSet
 from LengthAbstraction import LenInterval
 from interpreter import Stack, PC, Bytecode
 from loguru import logger
-
-AValue = SignSet
+from typing import Union
 
 suite = jpamb.Suite()
 bc = Bytecode(suite, dict())
 
-    
-# ints/booleans/chars mapped to {−,0,+}
-def sign_of_const(val: jvm.Value) -> SignSet:
-    match val:
-        case jvm.Value(type=jvm.Int(), value=v):
-            return SignSet.of_int(v)
-        case jvm.Value(type=jvm.Boolean(), value=b):
-            return SignSet.of_int(1 if b else 0)
-        case jvm.Value(type=jvm.Char(), value=c):
-            #This will always return a positive value, because there are no negative Unicode values.
-            return SignSet.of_int(ord(c))
-        case _:
-            return TOP  
+TAINT_SOURCES = ["getUserInput", "readLine", "nextLine", "getParameter",
+"Scanner.next", "BufferedReader.read"]
+POSSIBLE_SINKS = ["executeQuery", "execute", "prepareStatement",
+"Statement.execute", "PreparedStatement.execute"]
+STRING_OPS = ["String.concat", "StringBuilder.append", "StringBuffer.append",
+"String.format", "String.valueOf"]
+ANALYSIS_MODE = "sign"
+
+AValue = Union[SignSet, TaintSet]
+
+if ANALYSIS_MODE == "sign":
+    TOP = SignSet.top()
+    BOT = SignSet.bot()
+
+    # ints/booleans/chars mapped to {−,0,+}
+    def abstract_of_const(val: jvm.Value) -> SignSet:
+        match val:
+            case jvm.Value(type=jvm.Int(), value=v):
+                return SignSet.of_int(v)
+            case jvm.Value(type=jvm.Boolean(), value=b):
+                return SignSet.of_int(1 if b else 0)
+            case jvm.Value(type=jvm.Char(), value=c):
+                #This will always return a positive value, because there are no negative Unicode values.
+                return SignSet.of_int(ord(c))
+            case _:
+                return TOP
+
+elif ANALYSIS_MODE == "taint":
+    TOP = TaintSet.top()
+    BOT = TaintSet.bot()
+
+    def abstract_of_const(val: jvm.Value) -> TaintSet:
+        return TaintSet.safe()
+
             
 @dataclass
 class AFrame:
@@ -106,6 +127,14 @@ def index_interval_from_sign(s: SignSet) -> tuple[int, int]:
     return (-10**12, 10**12)
 
 def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]: 
+    if ANALYSIS_MODE == "sign":
+        return step_A_sign(states_at_pc)
+    elif ANALYSIS_MODE == "taint":
+        return step_A_taint(states_at_pc)
+    else:
+        raise ValueError(f"Unknown analysis being run")
+
+def step_A_sign(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
     out: dict[PC, AState | str] = {}
 
     def put(pc: PC, val: AState | str):
@@ -148,7 +177,7 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
         match opr:
             case jvm.Push(value=v):
                 nf = clone_frame(frame); 
-                nf.stack.push(sign_of_const(v)); 
+                nf.stack.push(abstract_of_const(v)); 
                 nf.pc += 1; 
                 succ(nf)
             case jvm.Load(type=_t, index=idx):
@@ -345,9 +374,7 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                 if may_oob:
                     nf_err = clone_frame(nf); nf_err.pc += 1
                     succ_with_heap(nf_err, entry.aheap, status="out of bounds")
-
-
-            
+        
             case jvm.Return(type=None):
                 continue
 
@@ -360,6 +387,194 @@ def step_A(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                 succ(nf)
 
     return out
+
+def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
+    out: dict[PC, AState | str] = {}
+
+    def put(pc: PC, val: AState | str):
+        k = (pc.method, pc.offset) 
+        prev = out.get(k)
+        if prev is None: 
+            out[k] = val; 
+            return
+        if isinstance(prev, str) or isinstance(val, str):
+            out[k] = prev if isinstance(prev, str) else val
+            return
+        a, b = prev.frames.peek(), val.frames.peek()
+        out[k] = AState(frames=Stack.empty().push(join_frames(a, b)))
+
+        return out
+
+    for pc, entry in states_at_pc.items():
+        assert isinstance(entry, AState)
+        frame = entry.frames.peek()
+        opr = bc[frame.pc]
+
+        def succ(newf: AFrame, status: str = "ok"):
+            put(newf.pc, AState(frames=Stack.empty().push(newf), status=status))
+        
+
+        match opr:
+            case jvm.Load(type=_t, index=idx):
+                nf = clone_frame(frame)
+                nf.stack.push(nf.locals.get(idx, TOP))
+                nf.pc += 1
+                succ(nf)
+            case jvm.Store(type=_t, index=idx):
+                if not frame.stack:
+                    continue
+                nf = clone_frame(frame)
+                v = nf.stack.pop()
+                nf.locals[idx] = v
+                nf.pc += 1
+                succ(nf)
+            case jvm.Push(value=v):
+                nf = clone_frame(frame)
+                # String literals are safe, everything else irrelevant
+                nf.stack.push(abstract_of_const(v))
+                nf.pc += 1
+                succ(nf)
+            case jvm.Get(field=field, static=static):
+                nf = clone_frame(frame)
+                nf.stack.push(TOP)  # Unknown taint
+                nf.pc += 1
+                succ(nf)
+            case jvm.New(classname=cname):
+                nf = clone_frame(frame)
+                nf.stack.push(TaintSet.safe())  # New objects start safe
+                nf.pc += 1
+                succ(nf)
+            case jvm.Dup():
+                if not frame.stack:
+                    continue
+                nf = clone_frame(frame)
+                nf.stack.push(nf.stack.peek())
+                nf.pc += 1
+                succ(nf)
+            case jvm.InvokeVirtual(method=m) | jvm.InvokeStatic(method=m) | jvm.InvokeSpecial(method=m):
+                method_str = str(m)
+                
+                if any(src in method_str for src in TAINT_SOURCES):
+                    nf = clone_frame(frame)
+                    num_to_pop = len(m.extension.params)
+                    if not isinstance(opr, jvm.InvokeStatic):
+                        num_to_pop += 1  
+                    for _ in range(num_to_pop):
+                        if nf.stack:
+                            nf.stack.pop()
+                    nf.stack.push(TaintSet.tainted()) 
+                    nf.pc += 1
+                    succ(nf)
+                    continue
+
+                if any(sink in method_str for sink in POSSIBLE_SINKS):
+                    num_args = len(m.extension.params)
+                    if not isinstance(opr, jvm.InvokeStatic):
+                        num_args += 1
+                    
+                    sql_tainted = False
+                    if len(frame.stack.items) >= num_args:
+                        # Usually the query is the first argument
+                        # Maybe there is a way to reinforce this ?
+                        query_arg = frame.stack.items[-num_args]
+                        if hasattr(query_arg, 'is_tainted') and query_arg.is_tainted():
+                            sql_tainted = True
+                    
+                    nf = clone_frame(frame)
+                    for _ in range(num_args):
+                        if nf.stack:
+                            nf.stack.pop()
+                    nf.pc += 1
+                    
+                    if sql_tainted:
+                        succ(nf, status="SQL injection")
+                    else:
+                        if m.extension.ret is not None:
+                            nf.stack.push(TaintSet.safe())
+                        succ(nf)
+                    continue
+                
+                if any(str_op in method_str for str_op in STRING_OPS):
+                    num_args = len(m.extension.params)
+                    if not isinstance(opr, jvm.InvokeStatic):
+                        num_args += 1  
+                    
+                    any_tainted = False
+                    for i in range(min(num_args, len(frame.stack.items))):
+                        arg = frame.stack.items[-(i+1)]
+                        if hasattr(arg, 'is_tainted') and arg.is_tainted():
+                            any_tainted = True
+                            break
+                    
+                    nf = clone_frame(frame)
+                    for _ in range(num_args):
+                        if nf.stack:
+                            nf.stack.pop()
+                    
+                    if m.extension.ret is not None:
+                        nf.stack.push(TaintSet.tainted() if any_tainted else TaintSet.safe())
+                    nf.pc += 1
+                    succ(nf)
+                    continue
+                
+                nf = clone_frame(frame)
+                num_to_pop = len(m.extension.params)
+                if not isinstance(opr, jvm.InvokeStatic):
+                    num_to_pop += 1
+                
+                any_tainted = False
+                for i in range(min(num_to_pop, len(frame.stack.items))):
+                    arg = frame.stack.items[-(i+1)]
+                    if hasattr(arg, 'is_tainted') and arg.is_tainted():
+                        any_tainted = True
+                        break
+                
+                for _ in range(num_to_pop):
+                    if nf.stack:
+                        nf.stack.pop()
+                
+                if m.extension.ret is not None:
+                    nf.stack.push(TaintSet.tainted() if any_tainted else TOP)
+                nf.pc += 1
+                succ(nf)
+            case jvm.Ifz(condition=cond, target=target):
+                if not frame.stack:
+                    continue
+                nf = clone_frame(frame)
+                nf.stack.pop() 
+                
+                jf = clone_frame(nf)
+                jf.pc.replace(target)
+                succ(jf)
+                
+                ff = clone_frame(nf)
+                ff.pc += 1
+                succ(ff)
+            case jvm.If(condition=cond, target=target):
+                if len(frame.stack.items) < 2:
+                    continue
+                nf = clone_frame(frame)
+                nf.stack.pop()
+                nf.stack.pop()
+                
+                jf = clone_frame(nf)
+                jf.pc.replace(target)
+                succ(jf)
+                
+                ff = clone_frame(nf)
+                ff.pc += 1
+                succ(ff)
+            case jvm.Goto(target=target):
+                nf = clone_frame(frame)
+                nf.pc.replace(target)
+                succ(nf)
+            case jvm.Return(type=None) | jvm.Return(type=_):
+                continue
+            case _:
+                nf = clone_frame(frame)
+                nf.pc += 1
+                succ(nf)
+                return 
 
 def _join_states(prev: AState | str, cur: AState | str) -> AState | str:
     if isinstance(prev, str) and isinstance(cur, str):
@@ -390,9 +605,10 @@ def _state_equal(a: AState | str, b: AState | str) -> bool:
 def execute_A(methodid, input):
     af = AFrame.from_method(methodid)
     for i, v in enumerate(input.values):
-        av = sign_of_const(v)
+        av = abstract_of_const(v)
         af.locals[i] = av
 
+    #TODO Remove unused variable
     start_pc = af.pc
     start = AState(frames=Stack.empty().push(af), status="ok", aheap={})
 
