@@ -20,14 +20,49 @@ class TaintSet:
     @staticmethod
     def unknown() -> TaintSet: return TaintSet(TaintValue.UNKNOWN)
     @staticmethod
+    def top() -> TaintSet: return TaintSet(TaintValue.UNKNOWN)
+    @staticmethod
     def bot() -> TaintSet: return TaintSet(TaintValue.BOT)
 
     def __add__(self, other: TaintSet) -> TaintSet:
+        if self.taint == TaintValue.BOT or other.taint == TaintValue.BOT:
+            return TaintSet.bot()
+
         if self.taint == TaintValue.TAINTED or other.taint == TaintValue.TAINTED:
             return TaintSet.tainted()
+        
         if self.taint == TaintValue.UNKNOWN or other.taint == TaintValue.UNKNOWN:
             return TaintSet.unknown()
+        
         return TaintSet.safe()
+    
+    def __or__(self, other: TaintSet) -> TaintSet:
+        if self.taint == TaintValue.BOT:
+            return other
+        if other.taint == TaintValue.BOT:
+            return self
+        
+        if self.taint == TaintValue.UNKNOWN or other.taint == TaintValue.UNKNOWN:
+            return TaintSet.unknown()
+        
+        if self.taint == other.taint:
+            return self
+        
+        return TaintSet.unknown()
+    
+    def __le__(self, other: TaintSet) -> bool:
+        if self.taint == TaintValue.BOT:
+            return True
+        
+        if other.taint == TaintValue.UNKNOWN:
+            return True
+        
+        if self.taint == other.taint:
+            return True
+        
+        return False
+    
+    def add(self, other: TaintSet) -> TaintSet: return self.__add__(self, other)
     
     def is_safe(self) -> bool:
         return self.taint == TaintValue.SAFE
@@ -36,7 +71,7 @@ class TaintSet:
         return self.taint == TaintValue.TAINTED
     
     def may_be_tainted(self) -> bool:
-        return self.taint == TaintValue.UNKNOWN
+        return self.taint in [TaintValue.UNKNOWN, TaintValue.TAINTED]
 
     def __str__(self) -> str:
         match self.taint:
