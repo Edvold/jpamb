@@ -1,26 +1,37 @@
 import jpamb
+import json
 
 from dataclasses import dataclass
+from typing import Union
+from loguru import logger
+from pathlib import Path\
+
 from jpamb import jvm
 from SignSet import SignSet
 from TaintSet import TaintSet
 from LengthAbstraction import LenInterval
 from interpreter import Stack, PC, Bytecode
-from loguru import logger
-from typing import Union
 
 suite = jpamb.Suite()
 bc = Bytecode(suite, dict())
 
-TAINT_SOURCES = ["getUserInput", "readLine", "nextLine", "getParameter",
-"Scanner.next", "BufferedReader.read"]
-POSSIBLE_SINKS = ["executeQuery", "execute", "prepareStatement",
-"Statement.execute", "PreparedStatement.execute"]
-STRING_OPS = ["String.concat", "StringBuilder.append", "StringBuffer.append",
-"String.format", "String.valueOf"]
 ANALYSIS_MODE = "sign"
+TAINT_SOURCES = []
+POSSIBLE_SINKS = {}
+STRING_OPS = []
+SANITIZERS = []
 
 AValue = Union[SignSet, TaintSet]
+
+def load_taint_config() -> dict:
+    config_path = Path(__file__).parent / "taint_config.json"
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        return config.get("sql_injection", {})
+    except FileNotFoundError:
+        logger.warning(f"taint_config.json not found, using empty config")
+        return {"sources": [], "sinks": {}, "propagators": [], "sanitizers": []}
 
 if ANALYSIS_MODE == "sign":
     TOP = SignSet.top()
@@ -42,6 +53,12 @@ if ANALYSIS_MODE == "sign":
 elif ANALYSIS_MODE == "taint":
     TOP = TaintSet.top()
     BOT = TaintSet.bot()
+
+    TAINT_CONFIG = load_taint_config()
+    TAINT_SOURCES = TAINT_CONFIG.get("sources", [])
+    POSSIBLE_SINKS = TAINT_CONFIG.get("sinks", {})
+    STRING_OPS = TAINT_CONFIG.get("propagators", [])
+    SANITIZERS = TAINT_CONFIG.get("sanitizers", [])
 
     def abstract_of_const(val: jvm.Value) -> TaintSet:
         return TaintSet.safe()
@@ -466,19 +483,32 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                     nf.pc += 1
                     succ(nf)
                     continue
-
-                if any(sink in method_str for sink in POSSIBLE_SINKS):
+                
+                sink_method = next((key for key in POSSIBLE_SINKS.keys() if key in method_str), None)
+                if sink_method:
+                    vulnerable_params = POSSIBLE_SINKS[sink_method]
                     num_args = len(m.extension.params)
                     if not isinstance(opr, jvm.InvokeStatic):
                         num_args += 1
                     
                     sql_tainted = False
-                    if len(frame.stack.items) >= num_args:
-                        # Usually the query is the first argument
-                        # Maybe there is a way to reinforce this ?
-                        query_arg = frame.stack.items[-num_args]
-                        if hasattr(query_arg, 'is_tainted') and query_arg.is_tainted():
-                            sql_tainted = True
+                    
+                    if vulnerable_params:
+                        # Check only specific parameters
+                        for param_idx in vulnerable_params:
+                            if len(frame.stack.items) > param_idx:
+                                arg = frame.stack.items[-(param_idx+1)]
+                                if hasattr(arg, 'is_tainted') and arg.is_tainted():
+                                    sql_tainted = True
+                                    break
+                    else:
+                        # Empty list means check all parameters
+                        for i in range(num_args):
+                            if len(frame.stack.items) > i:
+                                arg = frame.stack.items[-(i+1)]
+                                if hasattr(arg, 'is_tainted') and arg.is_tainted():
+                                    sql_tainted = True
+                                    break
                     
                     nf = clone_frame(frame)
                     for _ in range(num_args):
@@ -492,6 +522,23 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                         if m.extension.ret is not None:
                             nf.stack.push(TaintSet.safe())
                         succ(nf)
+                    continue
+
+                if any(sanitizer in method_str for sanitizer in SANITIZERS):
+                    num_args = len(m.extension.params)
+                    if not isinstance(opr, jvm.InvokeStatic):
+                        num_args += 1
+                    
+                    nf = clone_frame(frame)
+                    for _ in range(num_args):
+                        if nf.stack:
+                            nf.stack.pop()
+                    
+                    # Sanitizers always produce SAFE output
+                    if m.extension.ret is not None:
+                        nf.stack.push(TaintSet.safe())
+                    nf.pc += 1
+                    succ(nf)
                     continue
                 
                 if any(str_op in method_str for str_op in STRING_OPS):
@@ -608,8 +655,6 @@ def execute_A(methodid, input):
         av = abstract_of_const(v)
         af.locals[i] = av
 
-    #TODO Remove unused variable
-    start_pc = af.pc
     start = AState(frames=Stack.empty().push(af), status="ok", aheap={})
 
     k0 = pc_key(af.pc)
