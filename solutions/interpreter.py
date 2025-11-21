@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import numpy
 import virtual_methods
 import dynamic_methods
+from sqlite import query
 
 import sys
 from loguru import logger
@@ -261,6 +262,15 @@ def step(state: State) -> State | str:
             new_frame = Frame.from_method(m)
             
             args = [frame.stack.pop() for _ in range(len(m.extension.params))][-1:] # pop all arguments and reverse to get the right order
+
+            if "sink" in m.extension.name:
+                # get first (and only) argument
+                arg = args[0]
+                # execute sqlite query on interpreter side
+                query_result = query(state.heap[arg.value])
+
+                if query_result and "5tr0ngP@55w0rd!" in query_result:
+                    return "vulnerable"
 
             for i, v in enumerate(args):
                 match v:
