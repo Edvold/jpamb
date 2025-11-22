@@ -22,7 +22,9 @@ public class Runtime {
     jpamb.cases.Arrays.class,
     Calls.class,
     Strings.class,
-    Vulnerable.class);
+    Vulnerable.class,
+    SignOps.class,
+    LengthAbstraction.class);
 
   public static Case[] cases(Method m) {
     var cases = m.getAnnotation(Cases.class);
