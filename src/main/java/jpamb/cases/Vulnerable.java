@@ -5,16 +5,15 @@ import jpamb.utils.Case;
 public class Vulnerable {
 
   // Direct concatenation -> sink
-  @Case("(\"john\") -> vulnerable")
-  @Case("(\"admin OR 1=1\") -> vulnerable")
+  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
   public static void simpleTainted(String a) {
-    String query = "SELECT * FROM db WHERE username=" + a;
+    String query = "SELECT * FROM db WHERE username='" + a + "';";
 
     sink(query);
   }
 
   // Hardcoded string -> sink
-  @Case("(\"anything\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \") -> ok")
   public static void simpleClean(String username) {
     String query = "SELECT * FROM db WHERE username='john' AND password='password';";
 
@@ -22,7 +21,7 @@ public class Vulnerable {
   }
 
   // Direct concatenation 2 variables -> sink
-  @Case("(\"admin\' OR 1=1--\", \"\") -> vulnerable")
+  @Case("(\"admin\' OR 1=1; -- \", \"\") -> vulnerable")
   public static void sqlInjection(String username, String password) {
     String query = "SELECT * FROM db WHERE username='" + username +
                    "' AND password='" + password + "';";
@@ -31,7 +30,7 @@ public class Vulnerable {
   }
 
   // Direct concatenation -> not used in sink
-  @Case("(\"admin\' OR 1=1--\", \"\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \", \"\") -> ok")
   public static void notUsed(String username, String password) {
     String query = "SELECT * FROM db WHERE username='" + username +
                    "' AND password='" + password + "';";
@@ -40,7 +39,7 @@ public class Vulnerable {
   }
 
   // Taint going from var to var -> sink
-  @Case("(\"admin\' OR 1=1--\") -> vulnerable")
+  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
   public static void taintEverywhere(String username) {
     String a = username;
     String b = a;
@@ -51,7 +50,7 @@ public class Vulnerable {
   }
 
   // // Taint query and clean it by hardcoding after -> sink
-  @Case("(\"admin\' OR 1=1--\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \") -> ok")
   public static void cleanAfterTaint(String username) {
     String query = "SELECT * FROM db WHERE username='" + username + "';";
     query = "SELECT * FROM db WHERE username='john';";
@@ -60,7 +59,7 @@ public class Vulnerable {
   }
 
   // Tainted query -> never reaches sink
-  @Case("(\"admin\' OR 1=1--\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \") -> ok")
   public static void lostTaint(String username) {
     String query = "SELECT * FROM db WHERE username='" + username + "';";
 
@@ -71,7 +70,7 @@ public class Vulnerable {
   }
 
   // // Clean query, never becomes tainted -> sink
-  @Case("(\"admin\' OR 1=1--\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \") -> ok")
   public static void cleanPathTaken(String username) {
     String query = "SELECT * FROM db WHERE username='";
 
@@ -85,7 +84,7 @@ public class Vulnerable {
   }
 
   // Tainted query through logical flow -> sink
-  @Case("(\"admin\' OR 1=1--\") -> ok")
+  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
   public static void taintedPathTaken(String username) {
     String query = "SELECT * FROM db WHERE username='";
 
@@ -99,7 +98,7 @@ public class Vulnerable {
   }
 
   // Several variables, one is tainted -> sink
-  @Case("(\"admin\' OR 1=1--\") -> vulnerable")
+  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
   public static void multiConcat(String username) {
       String a = "SELECT ";
       String b = " * FROM db WHERE username='";
@@ -109,25 +108,25 @@ public class Vulnerable {
       sink(query);
   }
 
-  // sanitize method completely removes taint from user input -> sink
-  @Case("(\"admin\' OR 1=1--\", \"\") -> ok")
-  public static void sanitizedTaint(String username, String password) {
-    username = sanitize(username);
+  // sanitize method completely removes taint from query -> sink
+  @Case("(\"admin\' OR 1=1; -- \", \"\") -> vulnerable")
+  public static void semiSanitizedInput(String username, String password) {
     password = sanitize(password);
-
+    
     String query = "SELECT * FROM db WHERE username='" + username +
                    "' AND password='" + password + "';";
 
     sink(query);
   }
 
-  // sanitize method completely removes taint from query -> sink
-  @Case("(\"admin\' OR 1=1--\", \"\") -> ok")
-  public static void sanitizedTaintedQuery(String username, String password) {
+  // sanitize method completely removes taint from user input -> sink
+  @Case("(\"admin\' OR 1=1; -- \", \"\") -> ok")
+  public static void sanitizedInput(String username, String password) {
+    username = sanitize(username);
+    password = sanitize(password);
+
     String query = "SELECT * FROM db WHERE username='" + username +
                    "' AND password='" + password + "';";
-
-    query = sanitize(query);
 
     sink(query);
   }
