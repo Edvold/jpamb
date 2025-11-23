@@ -1,0 +1,54 @@
+{
+  "sql_injection": {
+    "sources": [
+      "getUserInput",
+      "readLine",
+      "nextLine",
+      "getParameter",
+      "getHeader",
+      "getCookies",
+      "getQueryString",
+      "getPathInfo",
+      "readUTF",
+      "Scanner.next",
+      "BufferedReader.read",
+      "System.getenv",
+      "System.getProperty"
+    ],
+    "sinks": {
+      "executeQuery": [0],
+      "execute": [0],
+      "executeUpdate": [0],
+      "prepareStatement": [0],
+      "createStatement": [],
+      "addBatch": [0],
+      "nativeSQL": [0]
+    },
+    "propagators": [
+      "String.concat",
+      "StringBuilder.append",
+      "StringBuffer.append",
+      "String.format",
+      "String.valueOf",
+      "String.replace",
+      "String.replaceAll",
+      "String.toLowerCase",
+      "String.toUpperCase",
+      "String.trim",
+      "String.substring",
+      "StringBuilder.toString"
+    ],
+    "sanitizers": [
+      "PreparedStatement.setString",
+      "PreparedStatement.setInt",
+      "PreparedStatement.setLong",
+      "PreparedStatement.setBoolean",
+      "escapeSQL",
+      "sanitize",
+      "Integer.parseInt",
+      "Long.parseLong",
+      "Double.parseDouble",
+      "Float.parseFloat"
+    ]
+  }
+}
