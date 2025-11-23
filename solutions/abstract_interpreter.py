@@ -517,7 +517,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                     if sql_tainted:
                         succ(nf, status="SQL injection")
                     else:
-                        if m.extension.ret is not None:
+                        if m.extension.return_type is not None:
                             nf.stack.push(TaintSet.safe())
                         succ(nf)
                     continue
@@ -533,7 +533,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                             nf.stack.pop()
                     
                     # Sanitizers always produce SAFE output
-                    if m.extension.ret is not None:
+                    if m.extension.return_type is not None:
                         nf.stack.push(TaintSet.safe())
                     nf.pc += 1
                     succ(nf)
@@ -556,7 +556,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                         if nf.stack:
                             nf.stack.pop()
                     
-                    if m.extension.ret is not None:
+                    if m.extension.return_type is not None:
                         nf.stack.push(TaintSet.tainted() if any_tainted else TaintSet.safe())
                     nf.pc += 1
                     succ(nf)
@@ -578,7 +578,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                     if nf.stack:
                         nf.stack.pop()
                 
-                if m.extension.ret is not None:
+                if m.extension.return_type is not None:
                     nf.stack.push(TaintSet.tainted() if any_tainted else TOP)
                 nf.pc += 1
                 succ(nf)
