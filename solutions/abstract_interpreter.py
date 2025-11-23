@@ -420,8 +420,6 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
         a, b = prev.frames.peek(), val.frames.peek()
         out[k] = AState(frames=Stack.empty().push(join_frames(a, b)))
 
-        return out
-
     for pc, entry in states_at_pc.items():
         assert isinstance(entry, AState)
         frame = entry.frames.peek()
@@ -621,7 +619,8 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                 nf = clone_frame(frame)
                 nf.pc += 1
                 succ(nf)
-                return 
+
+    return out
 
 def _join_states(prev: AState | str, cur: AState | str) -> AState | str:
     if isinstance(prev, str) and isinstance(cur, str):
