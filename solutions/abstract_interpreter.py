@@ -15,7 +15,7 @@ from interpreter import Stack, PC, Bytecode
 suite = jpamb.Suite()
 bc = Bytecode(suite, dict())
 
-ANALYSIS_MODE = "sign"
+ANALYSIS_MODE = "taint"
 TAINT_SOURCES = []
 POSSIBLE_SINKS = {}
 STRING_OPS = []
