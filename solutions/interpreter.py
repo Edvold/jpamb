@@ -17,19 +17,34 @@ T = TypeVar("T")
 logger.remove()
 logger.add(sys.stderr, format="[{level}] {message}")
 
+current_pc_value = 0
+
+def get_pc_value():
+    return current_pc_value
+
+def set_pc_value(value):
+    global current_pc_value
+    current_pc_value = value
+
 @dataclass
 class PC:
     method: jvm.AbsMethodID
     offset: int
 
     def __iadd__(self, delta):
+        global current_pc_value
+        current_pc_value += delta
         self.offset += delta
         return self
 
     def __add__(self, delta):
+        global current_pc_value
+        current_pc_value += delta
         return PC(self.method, self.offset + delta)
     
     def replace(self, val):
+        global current_pc_value
+        current_pc_value = val
         self.offset = val
 
     def __str__(self):
