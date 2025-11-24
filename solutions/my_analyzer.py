@@ -213,6 +213,7 @@ else:
 
     int_test_vals = {"-1", "0", "1"}
     char_test_vals = {"' '"}
+    string_test_vals = {"\"\"", "\"\""}
 
 
     JAVA_LANGUAGE = tree_sitter.Language(tree_sitter_java.language())
@@ -255,10 +256,13 @@ else:
         method_body = body.text.decode()
         numbers_in_body = re.findall(r"\d+", method_body)
         chars_in_body = re.findall(r"('.')", method_body)
+        string_in_body = re.findall(r"(\".*\")", method_body)
         for n in numbers_in_body:
             int_test_vals.add(n)
         for c in chars_in_body:
             char_test_vals.add(c)
+        for s in string_in_body:
+            string_test_vals.add(s)
             
 
     # Make predictions (improve these by looking at the Java code!)
@@ -268,13 +272,15 @@ else:
     out_of_bounds_chance = "50%"
     null_pointer_chance = "50%"
     infinite_loop_chance = "50%"
-    completed_interpreter_classes = ["jpamb.cases.Simple", "jpamb.cases.Tricky", "jpamb.cases.Loops", "jpamb.cases.Calls", "jpamb.cases.Arrays"]
+    completed_interpreter_classes = ["jpamb.cases.Simple", "jpamb.cases.Tricky", "jpamb.cases.Loops", "jpamb.cases.Calls", "jpamb.cases.Arrays", "jpamb.cases.Strings"]
 
     if classname in completed_interpreter_classes:
 
         states = set()
         int_test_vals = list(int_test_vals)
         bool_test_vals = ["true", "false"]
+        string_test_vals = list(string_test_vals)
+        char_test_vals = list(char_test_vals)
         array_input = False
 
         fuzzing_tests = 0
@@ -295,27 +301,37 @@ else:
                 if arg_types[i] == "[": #array argument
                     arg_type = arg_types[i] + arg_types[i+1]
                     i += 1
+                elif arg_types[i] == "L": #Object
+                    last_index = arg_types.index(";", i)
+                    arg_type = "".join(arg_types[i:last_index+1])
+                    i = last_index
                 else:
                     arg_type = arg_types[i]
                 fixed_arg_types.append(arg_type)
                 i += 1
-            for index in range(len(int_test_vals)*len(bool_test_vals)*len(char_test_vals)):
+            #check if the type variables exist then var = len(set) else = 1
+            for index in range(len(int_test_vals)*len(bool_test_vals)*len(char_test_vals)*len(string_test_vals)):
                 arg_values = []
                 arr_values = []
-                if "[I" in fixed_arg_types:
-                    print(f"ok;{ok_chance}")
-                    print(f"divide by zero;{divide_by_zero_chance}")
-                    print(f"assertion error;{assertion_error_chance}")
-                    print(f"out of bounds;{out_of_bounds_chance}")
-                    print(f"null pointer;{null_pointer_chance}")
-                    print(f"*;{infinite_loop_chance}")
-                    exit()
+                # if "[I" in fixed_arg_types:
+                #     print(f"ok;{ok_chance}")
+                #     print(f"divide by zero;{divide_by_zero_chance}")
+                #     print(f"assertion error;{assertion_error_chance}")
+                #     print(f"out of bounds;{out_of_bounds_chance}")
+                #     print(f"null pointer;{null_pointer_chance}")
+                #     print(f"*;{infinite_loop_chance}")
+                #     exit()
                 for a in fixed_arg_types:
                     match a:
                         case "I":
                             arg_values.append(str(int_test_vals[index % len(int_test_vals)]))
                         case "Z":
                             arg_values.append(str(bool_test_vals[index % len(bool_test_vals)]))
+                        case "Ljava/lang/String;":
+                            arg_values.append(str(string_test_vals[index % len(string_test_vals)]))
+                        case "C":
+                            #NOBODY USES THIS SHIT PLEASE
+                            arg_values.append(str(char_test_vals[index % len(char_test_vals)]))
                         case "[C":  # char array
                             #array_input = True
                             #brea
@@ -371,7 +387,57 @@ else:
                             array_input = True
                             #raise NotImplementedError(f"Don't know how to handle argument type {a}")
                         case "[I":
-                            raise NotImplementedError(f"Don't know how to handle argument type {a}")
+                            if array_input:
+                                continue
+                            array_val = "([I:"
+                            pc_vals = [get_pc_value()]
+                            #logger.debug(pc_vals)
+                            #logger.debug(char_test_vals)
+                            for integer in int_test_vals:
+                                set_pc_value(0)
+                                #logger.debug(f"The pc at the start is: {get_pc_value()}")
+                                test_array_val = array_val + integer + "])"
+                                input = jpamb.parse_input(test_array_val)
+                                #logger.debug(input)
+                                logger.disable("interpreter")
+                                execute(methodid, input)
+                                logger.enable("interpreter")
+                                #logger.debug(f"The current pc value is: {get_pc_value()}")
+                                if not get_pc_value() in pc_vals:
+                                    arr_values.append(test_array_val)
+                                    pc_vals.append(get_pc_value()) 
+                            #logger.debug(pc_vals)
+                            #logger.debug(arg_values)
+                            fixed = False
+                            while not fixed:
+                                arr_val_length = len(arr_values)
+                                for arr_val in arr_values:
+                                    #logger.debug(arg_val)
+                                    array_val = arr_val[0:-2] + ","
+                                    for integer in int_test_vals:
+                                        set_pc_value(0)
+                                        #logger.debug(f"The pc at the start is: {get_pc_value()}")
+                                        test_array_val = array_val + integer + "])"
+                                        input = jpamb.parse_input(test_array_val)
+                                        #logger.debug(input)
+                                        logger.disable("interpreter")
+                                        execute(methodid, input)
+                                        logger.enable("interpreter")
+                                        #logger.debug(f"The current pc value is: {get_pc_value()}")
+                                        #logger.debug(not get_pc_value() in pc_vals)
+                                        if not get_pc_value() in pc_vals:
+                                            #logger.debug("ADDING!!!!!\n")
+                                            arr_values.append(test_array_val)
+                                            pc_vals.append(get_pc_value()) 
+                                #logger.debug(pc_vals)
+                                #logger.debug(arg_values)
+                                new_arr_val_len = len(arr_values)
+                                if new_arr_val_len == arr_val_length:
+                                    fixed = True
+                            arr_values.append("([I:])")
+                            #logger.debug(arr_values)
+                            array_input = True
+                            #raise NotImplementedError(f"Don't know how to handle argument type {a}")
                 if array_input:
                     for arr_val in arr_values:
                         arg_values = [arr_val]
@@ -382,10 +448,13 @@ else:
                         states.add(state)
                 #logger.debug(f"{methodid}, {input}")
                 else:
+                    #logger.debug(arg_values)
                     input = jpamb.parse_input(f"({",".join(arg_values)})")
+                    #logger.debug(input)
                     logger.disable("interpreter")
                     state = execute(methodid, input)
                     logger.enable("interpreter")
+                    #logger.debug(state)
                     states.add(state)
                 #logger.debug(f"{state}")
 

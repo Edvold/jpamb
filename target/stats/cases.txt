@@ -108,8 +108,10 @@ jpamb.cases.Strings.assertEqualDirectly:(Ljava/lang/String;)V ("Hello World") ->
 jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V ("Hello World!") -> ok
 jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V ("Hello World") -> assertion error
 jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'l', 2) -> ok
+jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'l', 3) -> assertion error
 jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'y', -1) -> ok
 jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hello", 0) -> ok
+jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hello", 1) -> assertion error
 jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hey", -1) -> ok
 jpamb.cases.Strings.assertReturn:(Ljava/lang/String;)V       ("Hello World!") -> ok
 jpamb.cases.Strings.assertReturn:(Ljava/lang/String;)V       ("Hello World") -> assertion error

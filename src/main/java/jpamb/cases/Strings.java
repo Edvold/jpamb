@@ -70,12 +70,14 @@ public class Strings {
 
     @Case("(\"Hello World!\", \"Hello\", 0) -> ok")
     @Case("(\"Hello World!\", \"Hey\", -1) -> ok")
+    @Case("(\"Hello World!\", \"Hello\", 1) -> assertion error")
     public static void assertIndexOfString(String source, String target, int result) {
         assert source.indexOf(target) == result;
     }
 
     @Case("(\"Hello World!\", 'l', 2) -> ok")
     @Case("(\"Hello World!\", 'y', -1) -> ok")
+    @Case("(\"Hello World!\", 'l', 3) -> assertion error")
     public static void assertIndexOfChar(String source, char target, int result) {
         assert source.indexOf(target) == result;
     }
