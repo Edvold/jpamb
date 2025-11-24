@@ -84,7 +84,7 @@ public class Vulnerable {
   }
 
   // Tainted query through logical flow -> sink
-  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
+  @Case("(\"admin\' OR 1=1--\") -> vulnerable")
   public static void taintedPathTaken(String username) {
     String query = "SELECT * FROM db WHERE username='";
 
