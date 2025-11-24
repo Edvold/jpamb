@@ -22,7 +22,8 @@
       "prepareStatement": [0],
       "createStatement": [],
       "addBatch": [0],
-      "nativeSQL": [0]
+      "nativeSQL": [0],
+      "sink": [0]
     },
     "propagators": [
       "String.concat",
