@@ -126,16 +126,21 @@ jpamb.cases.Strings.assertSubstring2:(II)V                   (0, 6) -> assertion
 jpamb.cases.Strings.assertSubstring2:(II)V                   (5, 4) -> out of bounds
 jpamb.cases.Tricky.collatz:(I)V                              (0) -> assertion error
 jpamb.cases.Tricky.collatz:(I)V                              (24) -> ok
-jpamb.cases.Vulnerable.cleanAfterTaint:(Ljava/lang/String;)V ("admin' OR 1=1--") -> ok
-jpamb.cases.Vulnerable.cleanPathTaken:(Ljava/lang/String;)V  ("admin' OR 1=1--") -> ok
-jpamb.cases.Vulnerable.lostTaint:(Ljava/lang/String;)V       ("admin' OR 1=1--") -> ok
-jpamb.cases.Vulnerable.multiConcat:(Ljava/lang/String;)V     ("admin' OR 1=1--") -> vulnerable
-jpamb.cases.Vulnerable.notUsed:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1--", "") -> ok
-jpamb.cases.Vulnerable.sanitizedTaint:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1--", "") -> ok
-jpamb.cases.Vulnerable.sanitizedTaintedQuery:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1--", "") -> ok
-jpamb.cases.Vulnerable.simpleClean:(Ljava/lang/String;)V     ("anything") -> ok
-jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("admin OR 1=1") -> vulnerable
-jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("john") -> vulnerable
-jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1--", "") -> vulnerable
-jpamb.cases.Vulnerable.taintEverywhere:(Ljava/lang/String;)V ("admin' OR 1=1--") -> vulnerable
-jpamb.cases.Vulnerable.taintedPathTaken:(Ljava/lang/String;)V ("admin' OR 1=1--") -> ok
+jpamb.cases.Vulnerable.cleanAfterTaint:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.cleanPathTaken:(Ljava/lang/String;)V  ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.lostTaint:(Ljava/lang/String;)V       ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.multiConcat:(Ljava/lang/String;)V     ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.multiConcat:(Ljava/lang/String;)V     ("john") -> ok
+jpamb.cases.Vulnerable.notUsed:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> ok
+jpamb.cases.Vulnerable.sanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> ok
+jpamb.cases.Vulnerable.semiSanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> vulnerable
+jpamb.cases.Vulnerable.semiSanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("john", "password") -> ok
+jpamb.cases.Vulnerable.simpleClean:(Ljava/lang/String;)V     ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("john") -> ok
+jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> vulnerable
+jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("john", "password") -> ok
+jpamb.cases.Vulnerable.taintEverywhere:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.taintEverywhere:(Ljava/lang/String;)V ("john") -> ok
+jpamb.cases.Vulnerable.taintedPathTaken:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.taintedPathTaken:(Ljava/lang/String;)V ("john") -> ok

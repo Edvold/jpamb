@@ -160,7 +160,7 @@ def step(state: State) -> State | str:
 
             assert arr.type.contains == type, f"Expected type {type}, got {arr.type.contains}"
 
-            if len(arr.value) <= idx.value:
+            if len(arr.value) <= idx.value or idx.value < 0: # added check for negative index
                 return "out of bounds"
 
             frame.stack.push(jvm.Value.int(arr.value[idx.value]))
@@ -293,6 +293,19 @@ def step(state: State) -> State | str:
 
                 if query_result and "5tr0ngP@55w0rd!" in query_result:
                     return "vulnerable"
+                
+            if "sanitize" in m.extension.name:
+                # get first (and only) argument
+                arg = args[0]
+                # sanitize the string by removing common SQL injection characters
+                s = state.heap[arg.value]
+                sanitized = s.replace("'", "").replace("\"", "").replace(";", "").replace("--", "")
+                idx = state.heap_append(sanitized)
+                result = jvm.Value.reference(idx)
+
+                frame.pc += 1
+                frame.stack.push(result)
+                return state
 
             for i, v in enumerate(args):
                 match v:
@@ -463,7 +476,7 @@ def step(state: State) -> State | str:
                 return "null pointer"
             
             assert v.type == arr.type.contains, f"Expected {arr.type}, got {v.type}"
-            if len(arr.value) <= idx.value:
+            if len(arr.value) <= idx.value or idx.value < 0: # added check for negative index
                 return "out of bounds"
 
             # Array content is stored as tuple (immutable) and array.value is frozen (immutable)

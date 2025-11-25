@@ -11,7 +11,7 @@
         "args": [
           {
             "type": "string",
-            "value": "SELECT * FROM db WHERE username=\u0001"
+            "value": "SELECT * FROM db WHERE username='\u0001';"
           }
         ],
         "handle": {
@@ -115,7 +115,7 @@
         "args": [
           {
             "type": "string",
-            "value": "SELECT * FROM db WHERE username='\u0001';"
+            "value": "\u0001john';"
           }
         ],
         "handle": {
@@ -167,7 +167,7 @@
         "args": [
           {
             "type": "string",
-            "value": "\u0001john';"
+            "value": "\u0001\u0001';"
           }
         ],
         "handle": {
@@ -219,58 +219,6 @@
         "args": [
           {
             "type": "string",
-            "value": "\u0001\u0001';"
-          }
-        ],
-        "handle": {
-          "handletype": "method",
-          "kind": "static",
-          "method": {
-            "args": [
-              {
-                "kind": "class",
-                "name": "java/lang/invoke/MethodHandles$Lookup"
-              },
-              {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              {
-                "kind": "class",
-                "name": "java/lang/invoke/MethodType"
-              },
-              {
-                "kind": "class",
-                "name": "java/lang/String"
-              },
-              {
-                "kind": "array",
-                "type": {
-                  "kind": "class",
-                  "name": "java/lang/Object"
-                }
-              }
-            ],
-            "is_interface": false,
-            "name": "makeConcatWithConstants",
-            "ref": {
-              "kind": "class",
-              "name": "java/lang/invoke/StringConcatFactory"
-            },
-            "returns": {
-              "kind": "class",
-              "name": "java/lang/invoke/CallSite"
-            }
-          }
-        }
-      }
-    },
-    {
-      "index": 5,
-      "method": {
-        "args": [
-          {
-            "type": "string",
             "value": "\u0001';"
           }
         ],
@@ -318,7 +266,7 @@
       }
     },
     {
-      "index": 6,
+      "index": 5,
       "method": {
         "args": [
           {
@@ -462,7 +410,7 @@
                     "values": {
                       "value": {
                         "type": "string",
-                        "value": "(\"john\") -> vulnerable"
+                        "value": "(\"admin' OR 1=1; -- \") -> vulnerable"
                       }
                     }
                   }
@@ -474,7 +422,7 @@
                     "values": {
                       "value": {
                         "type": "string",
-                        "value": "(\"admin OR 1=1\") -> vulnerable"
+                        "value": "(\"john\") -> ok"
                       }
                     }
                   }
@@ -603,7 +551,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"anything\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \") -> ok"
             }
           }
         }
@@ -706,11 +654,36 @@
       "annotations": [
         {
           "is_runtime_visible": true,
-          "type": "jpamb/utils/Case",
+          "type": "jpamb/utils/Cases",
           "values": {
             "value": {
-              "type": "string",
-              "value": "(\"admin' OR 1=1--\", \"\") -> vulnerable"
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"admin' OR 1=1; -- \", \"\") -> vulnerable"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"john\", \"password\") -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -794,15 +767,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 27,
+            "line": 28,
             "offset": 0
           },
           {
-            "line": 30,
+            "line": 31,
             "offset": 4
           },
           {
-            "line": 31,
+            "line": 32,
             "offset": 6
           }
         ],
@@ -855,7 +828,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"admin' OR 1=1--\", \"\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \", \"\") -> ok"
             }
           }
         }
@@ -941,15 +914,15 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 36,
+            "line": 37,
             "offset": 0
           },
           {
-            "line": 39,
+            "line": 40,
             "offset": 4
           },
           {
-            "line": 40,
+            "line": 41,
             "offset": 6
           }
         ],
@@ -998,11 +971,36 @@
       "annotations": [
         {
           "is_runtime_visible": true,
-          "type": "jpamb/utils/Case",
+          "type": "jpamb/utils/Cases",
           "values": {
             "value": {
-              "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> vulnerable"
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"admin' OR 1=1; -- \") -> vulnerable"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"john\") -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -1054,7 +1052,7 @@
           },
           {
             "access": "dynamic",
-            "index": 2,
+            "index": 0,
             "method": {
               "args": [
                 {
@@ -1112,27 +1110,27 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 45,
+            "line": 47,
             "offset": 0
           },
           {
-            "line": 46,
+            "line": 48,
             "offset": 2
           },
           {
-            "line": 47,
+            "line": 49,
             "offset": 4
           },
           {
-            "line": 48,
+            "line": 50,
             "offset": 6
           },
           {
-            "line": 50,
+            "line": 52,
             "offset": 9
           },
           {
-            "line": 51,
+            "line": 53,
             "offset": 11
           }
         ],
@@ -1174,7 +1172,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \") -> ok"
             }
           }
         }
@@ -1190,7 +1188,7 @@
           },
           {
             "access": "dynamic",
-            "index": 2,
+            "index": 0,
             "method": {
               "args": [
                 {
@@ -1262,19 +1260,19 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 56,
+            "line": 58,
             "offset": 0
           },
           {
-            "line": 57,
+            "line": 59,
             "offset": 3
           },
           {
-            "line": 59,
+            "line": 61,
             "offset": 5
           },
           {
-            "line": 60,
+            "line": 62,
             "offset": 7
           }
         ],
@@ -1316,7 +1314,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \") -> ok"
             }
           }
         }
@@ -1332,7 +1330,7 @@
           },
           {
             "access": "dynamic",
-            "index": 2,
+            "index": 0,
             "method": {
               "args": [
                 {
@@ -1364,11 +1362,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 65,
+            "line": 67,
             "offset": 0
           },
           {
-            "line": 71,
+            "line": 73,
             "offset": 3
           }
         ],
@@ -1410,7 +1408,7 @@
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \") -> ok"
             }
           }
         }
@@ -1440,7 +1438,7 @@
           },
           {
             "access": "dynamic",
-            "index": 3,
+            "index": 2,
             "method": {
               "args": [
                 {
@@ -1498,19 +1496,19 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 76,
+            "line": 78,
             "offset": 0
           },
           {
-            "line": 81,
+            "line": 83,
             "offset": 2
           },
           {
-            "line": 84,
+            "line": 86,
             "offset": 5
           },
           {
-            "line": 85,
+            "line": 87,
             "offset": 7
           }
         ],
@@ -1548,11 +1546,36 @@
       "annotations": [
         {
           "is_runtime_visible": true,
-          "type": "jpamb/utils/Case",
+          "type": "jpamb/utils/Cases",
           "values": {
             "value": {
-              "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> ok"
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"admin' OR 1=1; -- \") -> vulnerable"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"john\") -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -1588,7 +1611,7 @@
           },
           {
             "access": "dynamic",
-            "index": 4,
+            "index": 3,
             "method": {
               "args": [
                 {
@@ -1650,19 +1673,19 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 90,
+            "line": 93,
             "offset": 0
           },
           {
-            "line": 93,
+            "line": 96,
             "offset": 2
           },
           {
-            "line": 98,
+            "line": 101,
             "offset": 6
           },
           {
-            "line": 99,
+            "line": 102,
             "offset": 8
           }
         ],
@@ -1700,11 +1723,36 @@
       "annotations": [
         {
           "is_runtime_visible": true,
-          "type": "jpamb/utils/Case",
+          "type": "jpamb/utils/Cases",
           "values": {
             "value": {
-              "type": "string",
-              "value": "(\"admin' OR 1=1--\") -> vulnerable"
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"admin' OR 1=1; -- \") -> vulnerable"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"john\") -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -1748,7 +1796,7 @@
           },
           {
             "access": "dynamic",
-            "index": 5,
+            "index": 4,
             "method": {
               "args": [
                 {
@@ -1791,7 +1839,7 @@
           },
           {
             "access": "dynamic",
-            "index": 6,
+            "index": 5,
             "method": {
               "args": [
                 {
@@ -1857,27 +1905,27 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 104,
+            "line": 108,
             "offset": 0
           },
           {
-            "line": 105,
+            "line": 109,
             "offset": 2
           },
           {
-            "line": 106,
+            "line": 110,
             "offset": 4
           },
           {
-            "line": 107,
+            "line": 111,
             "offset": 7
           },
           {
-            "line": 109,
+            "line": 113,
             "offset": 12
           },
           {
-            "line": 110,
+            "line": 114,
             "offset": 14
           }
         ],
@@ -1915,11 +1963,220 @@
       "annotations": [
         {
           "is_runtime_visible": true,
+          "type": "jpamb/utils/Cases",
+          "values": {
+            "value": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"admin' OR 1=1; -- \", \"\") -> vulnerable"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"john\", \"password\") -> ok"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "code": {
+        "annotations": [],
+        "bytecode": [
+          {
+            "index": 1,
+            "offset": 0,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "static",
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                }
+              ],
+              "is_interface": false,
+              "name": "sanitize",
+              "ref": {
+                "kind": "class",
+                "name": "jpamb/cases/Vulnerable"
+              },
+              "returns": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 1,
+            "opr": "invoke"
+          },
+          {
+            "index": 1,
+            "offset": 4,
+            "opr": "store",
+            "type": "ref"
+          },
+          {
+            "index": 0,
+            "offset": 5,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "index": 1,
+            "offset": 6,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "dynamic",
+            "index": 1,
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                },
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                }
+              ],
+              "name": "makeConcatWithConstants",
+              "returns": {
+                "kind": "class",
+                "name": "java/lang/String"
+              }
+            },
+            "offset": 7,
+            "opr": "invoke"
+          },
+          {
+            "index": 2,
+            "offset": 12,
+            "opr": "store",
+            "type": "ref"
+          },
+          {
+            "index": 2,
+            "offset": 13,
+            "opr": "load",
+            "type": "ref"
+          },
+          {
+            "access": "static",
+            "method": {
+              "args": [
+                {
+                  "kind": "class",
+                  "name": "java/lang/String"
+                }
+              ],
+              "is_interface": false,
+              "name": "sink",
+              "ref": {
+                "kind": "class",
+                "name": "jpamb/cases/Vulnerable"
+              },
+              "returns": null
+            },
+            "offset": 14,
+            "opr": "invoke"
+          },
+          {
+            "offset": 17,
+            "opr": "return",
+            "type": null
+          }
+        ],
+        "exceptions": [],
+        "lines": [
+          {
+            "line": 120,
+            "offset": 0
+          },
+          {
+            "line": 122,
+            "offset": 3
+          },
+          {
+            "line": 125,
+            "offset": 7
+          },
+          {
+            "line": 126,
+            "offset": 9
+          }
+        ],
+        "max_locals": 3,
+        "max_stack": 2,
+        "stack_map": null
+      },
+      "default": null,
+      "exceptions": [],
+      "name": "semiSanitizedInput",
+      "params": [
+        {
+          "annotations": [],
+          "type": {
+            "annotations": [],
+            "args": [],
+            "inner": null,
+            "kind": "class",
+            "name": "java/lang/String"
+          },
+          "visible": true
+        },
+        {
+          "annotations": [],
+          "type": {
+            "annotations": [],
+            "args": [],
+            "inner": null,
+            "kind": "class",
+            "name": "java/lang/String"
+          },
+          "visible": true
+        }
+      ],
+      "returns": {
+        "annotations": [],
+        "type": null
+      },
+      "typeparams": []
+    },
+    {
+      "access": [
+        "public",
+        "static"
+      ],
+      "annotations": [
+        {
+          "is_runtime_visible": true,
           "type": "jpamb/utils/Case",
           "values": {
             "value": {
               "type": "string",
-              "value": "(\"admin' OR 1=1--\", \"\") -> ok"
+              "value": "(\"admin' OR 1=1; -- \", \"\") -> ok"
             }
           }
         }
@@ -2073,23 +2330,23 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 115,
+            "line": 131,
             "offset": 0
           },
           {
-            "line": 116,
+            "line": 132,
             "offset": 3
           },
           {
-            "line": 118,
+            "line": 134,
             "offset": 6
           },
           {
-            "line": 121,
+            "line": 137,
             "offset": 10
           },
           {
-            "line": 122,
+            "line": 138,
             "offset": 12
           }
         ],
@@ -2099,191 +2356,7 @@
       },
       "default": null,
       "exceptions": [],
-      "name": "sanitizedTaint",
-      "params": [
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
-        },
-        {
-          "annotations": [],
-          "type": {
-            "annotations": [],
-            "args": [],
-            "inner": null,
-            "kind": "class",
-            "name": "java/lang/String"
-          },
-          "visible": true
-        }
-      ],
-      "returns": {
-        "annotations": [],
-        "type": null
-      },
-      "typeparams": []
-    },
-    {
-      "access": [
-        "public",
-        "static"
-      ],
-      "annotations": [
-        {
-          "is_runtime_visible": true,
-          "type": "jpamb/utils/Case",
-          "values": {
-            "value": {
-              "type": "string",
-              "value": "(\"admin' OR 1=1--\", \"\") -> ok"
-            }
-          }
-        }
-      ],
-      "code": {
-        "annotations": [],
-        "bytecode": [
-          {
-            "index": 0,
-            "offset": 0,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "index": 1,
-            "offset": 1,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "dynamic",
-            "index": 1,
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                },
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                }
-              ],
-              "name": "makeConcatWithConstants",
-              "returns": {
-                "kind": "class",
-                "name": "java/lang/String"
-              }
-            },
-            "offset": 2,
-            "opr": "invoke"
-          },
-          {
-            "index": 2,
-            "offset": 7,
-            "opr": "store",
-            "type": "ref"
-          },
-          {
-            "index": 2,
-            "offset": 8,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "static",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                }
-              ],
-              "is_interface": false,
-              "name": "sanitize",
-              "ref": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable"
-              },
-              "returns": {
-                "kind": "class",
-                "name": "java/lang/String"
-              }
-            },
-            "offset": 9,
-            "opr": "invoke"
-          },
-          {
-            "index": 2,
-            "offset": 12,
-            "opr": "store",
-            "type": "ref"
-          },
-          {
-            "index": 2,
-            "offset": 13,
-            "opr": "load",
-            "type": "ref"
-          },
-          {
-            "access": "static",
-            "method": {
-              "args": [
-                {
-                  "kind": "class",
-                  "name": "java/lang/String"
-                }
-              ],
-              "is_interface": false,
-              "name": "sink",
-              "ref": {
-                "kind": "class",
-                "name": "jpamb/cases/Vulnerable"
-              },
-              "returns": null
-            },
-            "offset": 14,
-            "opr": "invoke"
-          },
-          {
-            "offset": 17,
-            "opr": "return",
-            "type": null
-          }
-        ],
-        "exceptions": [],
-        "lines": [
-          {
-            "line": 127,
-            "offset": 0
-          },
-          {
-            "line": 130,
-            "offset": 4
-          },
-          {
-            "line": 132,
-            "offset": 7
-          },
-          {
-            "line": 133,
-            "offset": 9
-          }
-        ],
-        "max_locals": 3,
-        "max_stack": 2,
-        "stack_map": null
-      },
-      "default": null,
-      "exceptions": [],
-      "name": "sanitizedTaintedQuery",
+      "name": "sanitizedInput",
       "params": [
         {
           "annotations": [],
@@ -2332,7 +2405,7 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 139,
+            "line": 144,
             "offset": 0
           }
         ],
@@ -2386,7 +2459,7 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 143,
+            "line": 148,
             "offset": 0
           }
         ],
