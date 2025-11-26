@@ -2174,6 +2174,18 @@
                       }
                     }
                   }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", \"Hello\", 1) -> assertion error"
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -2280,11 +2292,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 74,
+            "line": 75,
             "offset": 0
           },
           {
-            "line": 75,
+            "line": 76,
             "offset": 11
           }
         ],
@@ -2371,6 +2383,18 @@
                       "value": {
                         "type": "string",
                         "value": "(\"Hello World!\", 'y', -1) -> ok"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "annotation",
+                  "value": {
+                    "type": "jpamb/utils/Case",
+                    "values": {
+                      "value": {
+                        "type": "string",
+                        "value": "(\"Hello World!\", 'l', 3) -> assertion error"
                       }
                     }
                   }
@@ -2477,11 +2501,11 @@
         "exceptions": [],
         "lines": [
           {
-            "line": 80,
+            "line": 82,
             "offset": 0
           },
           {
-            "line": 81,
+            "line": 83,
             "offset": 11
           }
         ],

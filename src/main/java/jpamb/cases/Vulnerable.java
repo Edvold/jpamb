@@ -6,6 +6,7 @@ public class Vulnerable {
 
   // Direct concatenation -> sink
   @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
+  @Case("(\"john\") -> ok")
   public static void simpleTainted(String a) {
     String query = "SELECT * FROM db WHERE username='" + a + "';";
 
@@ -22,6 +23,7 @@ public class Vulnerable {
 
   // Direct concatenation 2 variables -> sink
   @Case("(\"admin\' OR 1=1; -- \", \"\") -> vulnerable")
+  @Case("(\"john\", \"password\") -> ok")
   public static void sqlInjection(String username, String password) {
     String query = "SELECT * FROM db WHERE username='" + username +
                    "' AND password='" + password + "';";
@@ -40,6 +42,7 @@ public class Vulnerable {
 
   // Taint going from var to var -> sink
   @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
+  @Case("(\"john\") -> ok")
   public static void taintEverywhere(String username) {
     String a = username;
     String b = a;
@@ -84,7 +87,8 @@ public class Vulnerable {
   }
 
   // Tainted query through logical flow -> sink
-  @Case("(\"admin\' OR 1=1--\") -> vulnerable")
+  @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
+  @Case("(\"john\") -> ok")
   public static void taintedPathTaken(String username) {
     String query = "SELECT * FROM db WHERE username='";
 
@@ -99,6 +103,7 @@ public class Vulnerable {
 
   // Several variables, one is tainted -> sink
   @Case("(\"admin\' OR 1=1; -- \") -> vulnerable")
+  @Case("(\"john\") -> ok")
   public static void multiConcat(String username) {
       String a = "SELECT ";
       String b = " * FROM db WHERE username='";
@@ -110,6 +115,7 @@ public class Vulnerable {
 
   // sanitize method completely removes taint from query -> sink
   @Case("(\"admin\' OR 1=1; -- \", \"\") -> vulnerable")
+  @Case("(\"john\", \"password\") -> ok")
   public static void semiSanitizedInput(String username, String password) {
     password = sanitize(password);
     
