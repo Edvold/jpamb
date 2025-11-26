@@ -9,23 +9,11 @@ from loguru import logger
 import tree_sitter
 import tree_sitter_java
 
-# this example shows minimal working program without any imports.
-#  this is especially useful for people building it in other programming languages
-if len(sys.argv) == 2 and sys.argv[1] == "info":
-    # Output the 5 required info lines
-    print("Dynamic Analysis")
-    print("1.2")
-    print("Kageklubben")
-    print("simple,tricky,loops,calls,arrays,python,dynamic")
-    print("no")  # Use any other string to share system info
-else:
-    # Get the method we need to analyze
-    classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
+def dynamic_analysis(methodid):
+
+    # various setup stuff
     java_max_int = 2**32-1
     java_min_int = -2**32
-
-    methodid = jpamb.parse_methodid(sys.argv[1])
-
     int_test_vals = {"-1", "0", "1"}
     char_test_vals = {"' '"}
     string_test_vals = {"\"\"", "\"\""}
@@ -34,7 +22,7 @@ else:
     JAVA_LANGUAGE = tree_sitter.Language(tree_sitter_java.language())
     parser = tree_sitter.Parser(JAVA_LANGUAGE)
 
-
+    # Actual analysis beginning here
     srcfile = jpamb.sourcefile(methodid)
 
     with open(srcfile, "rb") as f:
@@ -368,3 +356,36 @@ else:
     print(f"null pointer;{null_pointer_chance}")
     print(f"*;{infinite_loop_chance}")
     print(f"vulnerable;{vulnerable}")
+
+def static_analysis(methodid):
+    # Placeholder static analysis
+    return random.choice([False, True])
+
+# this example shows minimal working program without any imports.
+#  this is especially useful for people building it in other programming languages
+if len(sys.argv) == 2 and sys.argv[1] == "info":
+    # Output the 5 required info lines
+    print("Dynamic Analysis")
+    print("1.2")
+    print("Kageklubben")
+    print("simple,tricky,loops,calls,arrays,python,dynamic")
+    print("no")  # Use any other string to share system info
+else:
+    # Get the method we need to analyze
+    classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
+
+    methodid = jpamb.parse_methodid(sys.argv[1])
+
+    is_vulnerable = static_analysis(methodid)
+
+    if is_vulnerable:
+        dynamic_analysis(methodid)
+    # else:
+    #     # guess 50% for all outcomes
+    #     print("ok;50%")
+    #     print("divide by zero;50%")
+    #     print("assertion error;50%")
+    #     print("out of bounds;50%")
+    #     print("null pointer;50%")
+    #     print("*;50%")
+    #     print("vulnerable;50%")
