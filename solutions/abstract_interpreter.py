@@ -515,7 +515,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                     nf.pc += 1
                     
                     if sql_tainted:
-                        succ(nf, status="SQL injection")
+                        succ(nf, status="vulnerable")
                     else:
                         if m.extension.return_type is not None:
                             nf.stack.push(TaintSet.safe())
@@ -651,7 +651,10 @@ def _state_equal(a: AState | str, b: AState | str) -> bool:
 def execute_A(methodid, input):
     af = AFrame.from_method(methodid)
     for i, v in enumerate(input.values):
-        av = abstract_of_const(v)
+        if ANALYSIS_MODE == "taint":
+            av = TaintSet.tainted()
+        else:
+            av = abstract_of_const(v)
         af.locals[i] = av
 
     start = AState(frames=Stack.empty().push(af), status="ok", aheap={})
