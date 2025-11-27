@@ -364,7 +364,7 @@ def dynamic_analysis(methodid):
         spacing = re.match(r"(\s*)", source_lines[line-1]).group(1)
         sanitize_code = f"{spacing}{vulnerable_variable} = sanitize({vulnerable_variable});\n"
 
-        safe_code = source_lines[:line-2] + [sanitize_code] + source_lines[line-1:]
+        safe_code = source_lines[:line-1] + [sanitize_code] + source_lines[line-1:]
 
         with open(Path(os.path.dirname(__file__), "..", "src", "main", "java", safe_path_java), "w") as f:
             f.writelines(safe_code)
