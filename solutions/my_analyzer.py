@@ -2,6 +2,7 @@
 import sys
 import re
 from interpreter import *
+from taint_analysis import is_method_tainted
 #from interpreter import current_pc_value
 import jpamb
 import random
@@ -358,8 +359,22 @@ def dynamic_analysis(methodid):
     print(f"vulnerable;{vulnerable}")
 
 def static_analysis(methodid):
-    # Placeholder static analysis
-    return random.choice([False, True])
+
+    found_vulnerability = False
+
+    #Taint Analysis
+    try:
+        found_vulnerability = is_method_tainted(methodid)
+    except Exception as e:
+        logger.warning(f"Taint Analysis failed: {e}")
+    
+    if not found_vulnerability:
+        try:
+            found_vulnerability = True
+        except Exception as e:
+            logger.warning(f"Taint Abstraction analysis failed: {e}")
+
+    return found_vulnerability
 
 # this example shows minimal working program without any imports.
 #  this is especially useful for people building it in other programming languages
