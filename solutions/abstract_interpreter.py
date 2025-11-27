@@ -15,7 +15,7 @@ from interpreter import Stack, PC, Bytecode
 suite = jpamb.Suite()
 bc = Bytecode(suite, dict())
 
-ANALYSIS_MODE = "sign"
+ANALYSIS_MODE = "taint"
 TAINT_SOURCES = []
 POSSIBLE_SINKS = {}
 STRING_OPS = []
@@ -721,8 +721,6 @@ def run_main(methodid, input):
     dump_A(abstract_seen)
 
 def abstract_taint_res(methodid, input) -> bool:
-    global ANALYSIS_MODE
-    ANALYSIS_MODE = "taint"
     found_vuln = False
 
     #input is

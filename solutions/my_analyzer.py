@@ -370,6 +370,7 @@ def static_analysis(methodid, input):
         logger.warning(f"Taint Analysis failed: {e}")
     
     if not found_vulnerability:
+        #Abstract taint analysis
         try:
             found_vulnerability = abstract_taint_res(methodid, input)
         except Exception as e:
