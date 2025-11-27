@@ -19,6 +19,10 @@ logger.remove()
 logger.add(sys.stderr, format="[{level}] {message}")
 
 current_pc_value = 0
+vulnerable_pc = ""
+
+def get_vulnerable_pc():
+    return vulnerable_pc
 
 def get_pc_value():
     return current_pc_value
@@ -292,6 +296,8 @@ def step(state: State) -> State | str:
                 query_result = query(state.heap[arg.value])
 
                 if query_result and "5tr0ngP@55w0rd!" in query_result:
+                    global vulnerable_pc
+                    vulnerable_pc = str(frame.pc)
                     return "vulnerable"
                 
             if "sanitize" in m.extension.name:

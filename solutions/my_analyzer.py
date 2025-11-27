@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import json
+import os
+from pathlib import Path
 import sys
 import re
 from interpreter import *
@@ -8,6 +11,8 @@ import random
 from loguru import logger
 import tree_sitter
 import tree_sitter_java
+
+from jpamb.jvm.base import ClassName
 
 def dynamic_analysis(methodid):
 
@@ -335,6 +340,35 @@ def dynamic_analysis(methodid):
         infinite_loop_chance = "0%"
     
     if "vulnerable" in states:
+        vulnerable_method, _, offset = get_vulnerable_pc().split(":")
+        
+        path1, path2, classname, methodname = vulnerable_method.rsplit(".")
+        vulnerable_path_json = Path(path1, path2, classname + ".json")
+        vulnerable_path_java = Path(path1, path2, classname + ".java")
+        safe_path_java = Path(path1, path2, classname + "_safe.java")
+
+        with open(Path(os.path.dirname(__file__), "..", "target", "decompiled", vulnerable_path_json), "r") as f:
+            jvm_json = json.load(f)
+
+        for method in jvm_json["methods"]:
+            if method["name"] == method_name:
+                for line_object in method["code"]["lines"][::-1]:
+                    if int(offset) >= int(line_object["offset"]):
+                        line = int(line_object["line"])
+                        break
+        
+        with open(Path(os.path.dirname(__file__), "..", "src", "main", "java", vulnerable_path_java), "r") as f:
+            source_lines = f.readlines()
+        
+        vulnerable_variable = re.search(r"\(([^\)]+)\)", source_lines[line-1].strip()).group(1)
+        spacing = re.match(r"(\s*)", source_lines[line-1]).group(1)
+        sanitize_code = f"{spacing}{vulnerable_variable} = sanitize({vulnerable_variable});\n"
+
+        safe_code = source_lines[:line-2] + [sanitize_code] + source_lines[line-1:]
+
+        with open(Path(os.path.dirname(__file__), "..", "src", "main", "java", safe_path_java), "w") as f:
+            f.writelines(safe_code)
+
         vulnerable = "100%"
     else:
         vulnerable = "5%"
@@ -359,7 +393,8 @@ def dynamic_analysis(methodid):
 
 def static_analysis(methodid):
     # Placeholder static analysis
-    return random.choice([False, True])
+    return True
+    #return random.choice([False, True])
 
 # this example shows minimal working program without any imports.
 #  this is especially useful for people building it in other programming languages
