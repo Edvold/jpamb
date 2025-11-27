@@ -391,9 +391,9 @@ else:
     # Get the method we need to analyze
     classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
 
-    methodid, input = jpamb.getcase()
+    methodid = jpamb.parse_methodid(sys.argv[1])
 
-    is_vulnerable = static_analysis(methodid, input)
+    is_vulnerable = static_analysis(methodid, jpamb.parse_input(args))
 
     if is_vulnerable:
         dynamic_analysis(methodid)
