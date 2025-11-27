@@ -15,7 +15,7 @@ from interpreter import Stack, PC, Bytecode
 suite = jpamb.Suite()
 bc = Bytecode(suite, dict())
 
-ANALYSIS_MODE = "taint"
+ANALYSIS_MODE = "sign"
 TAINT_SOURCES = []
 POSSIBLE_SINKS = {}
 STRING_OPS = []
@@ -713,11 +713,33 @@ def dump_A(seen: dict[tuple[jvm.AbsMethodID, int], AState | str]):
 
     print(final_status)
 
-if __name__ == "__main__":
-    methodid, input = jpamb.getcase()
-    
+
+def run_main(methodid, input):
     # Abstract run
     abstract_seen = execute_A(methodid, input)
     #print("== abstract ==")
     dump_A(abstract_seen)
 
+def abstract_taint_res(methodid, input) -> bool:
+    global ANALYSIS_MODE
+    ANALYSIS_MODE = "taint"
+    found_vuln = False
+
+    #input is
+    abstract_seen = execute_A(methodid, input)
+
+    for state_val in abstract_seen.values():
+        if isinstance(state_val, str) and state_val == "vulnerable":
+            found_vuln = True
+            break
+        elif hasattr(state_val, 'status') and state_val.status == "vulnerable":
+            found_vuln = True
+
+    return found_vuln
+
+
+if __name__ == "__main__":
+    methodid, input = jpamb.getcase()
+
+    run_main(methodid, input)
+    

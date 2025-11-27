@@ -3,6 +3,7 @@ import sys
 import re
 from interpreter import *
 from taint_analysis import is_method_tainted
+from abstract_interpreter import abstract_taint_res
 #from interpreter import current_pc_value
 import jpamb
 import random
@@ -358,7 +359,7 @@ def dynamic_analysis(methodid):
     print(f"*;{infinite_loop_chance}")
     print(f"vulnerable;{vulnerable}")
 
-def static_analysis(methodid):
+def static_analysis(methodid, input):
 
     found_vulnerability = False
 
@@ -370,7 +371,7 @@ def static_analysis(methodid):
     
     if not found_vulnerability:
         try:
-            found_vulnerability = True
+            found_vulnerability = abstract_taint_res(methodid, input)
         except Exception as e:
             logger.warning(f"Taint Abstraction analysis failed: {e}")
 
@@ -389,9 +390,9 @@ else:
     # Get the method we need to analyze
     classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
 
-    methodid = jpamb.parse_methodid(sys.argv[1])
+    methodid, input = jpamb.getcase()
 
-    is_vulnerable = static_analysis(methodid)
+    is_vulnerable = static_analysis(methodid, input)
 
     if is_vulnerable:
         dynamic_analysis(methodid)
