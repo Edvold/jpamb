@@ -1003,29 +1003,31 @@ def execute_A(methodid, input):
 
     for i, v in enumerate(input.values):
         if ANALYSIS_MODE == "taint":
-            av = TaintSet.tainted()
-        else:
-            if ANALYSIS_MODE == "sign" and isinstance(v.type, jvm.Array):
-            elements = {}
-            summary_content = BOT
-            
-            for idx, elem in enumerate(v.value):
-                # Char/Int conversion
-                val_int = ord(elem) if isinstance(elem, str) and len(elem) == 1 else elem
-                val_interval = LenInterval.const(val_int)
+            af.locals[i] = TaintSet.tainted()
+        
+        elif ANALYSIS_MODE == "sign":
+            if isinstance(v.type, jvm.Array):
+                elements = {}
+                summary_content = BOT  
                 
-                if len(v.value) < 20: 
-                    elements[idx] = val_interval
+                for idx, elem in enumerate(v.value):
+                    val_int = ord(elem) if isinstance(elem, str) and len(elem) == 1 else elem
+                    val_interval = LenInterval.const(val_int)
+                    
+                    if len(v.value) < 20: 
+                        elements[idx] = val_interval
+                    
+                    summary_content = join_values(summary_content, val_interval)
                 
-                summary_content = join_values(summary_content, val_interval)
+                length = LenInterval.const(len(v.value))
+                
+                start_heap[heap_counter] = (length, summary_content, elements)
+                
+                af.locals[i] = LenInterval.const(heap_counter)
+                heap_counter += 1
             
-            length = LenInterval.const(len(v.value))
-            start_heap[heap_counter] = (length, summary_content, elements)
-            
-            af.locals[i] = LenInterval.const(heap_counter)
-            heap_counter += 1
-        else:
-            af.locals[i] = abstract_of_const(v)
+            else:
+                af.locals[i] = abstract_of_const(v)
 
     start = AState(frames=Stack.empty().push(af), status="ok", aheap=start_heap)
 
