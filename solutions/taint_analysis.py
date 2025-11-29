@@ -321,12 +321,7 @@ def is_method_tainted(methodid):
 # this example shows minimal working program without any imports.
 #  this is especially useful for people building it in other programming languages
 if len(sys.argv) == 2 and sys.argv[1] == "info":
-    # Output the 5 required info lines
-    print("Taint analysis")
-    print("1.0")
-    print("Kageklubben")
-    print("SQL,taint")
-    print("no")  # Use any other string to share system info
+    a = 1
 else:
     # Get the method we need to analyze
     classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()

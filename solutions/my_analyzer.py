@@ -359,7 +359,7 @@ def dynamic_analysis(methodid):
     print(f"*;{infinite_loop_chance}")
     print(f"vulnerable;{vulnerable}")
 
-def static_analysis(methodid, input):
+def static_analysis(methodid):
 
     found_vulnerability = False
 
@@ -372,11 +372,40 @@ def static_analysis(methodid, input):
     if not found_vulnerability:
         #Abstract taint analysis
         try:
+            input_str = generate_dummy_input(methodid)
+            input = jpamb.parse_input(input_str)
+
             found_vulnerability = abstract_taint_res(methodid, input)
         except Exception as e:
             logger.warning(f"Taint Abstraction analysis failed: {e}")
 
     return found_vulnerability
+
+def generate_dummy_input(methodid):
+    params = methodid.extension.params._elements
+    
+    if not params:
+        return "()"
+    
+    dummy_values = []
+    for param in params:
+        param_str = str(param)
+        if "String" in param_str:
+            dummy_values.append('"dummy"')
+        elif param_str == "I":  # int
+            dummy_values.append("0")
+        elif param_str == "Z":  # boolean
+            dummy_values.append("true")
+        elif param_str == "C":  # char
+            dummy_values.append("'a'")
+        elif param_str.startswith("["):  # array
+            elem_type = param_str[1:] 
+            dummy_values.append(f"([{elem_type}:])") 
+        else:
+            dummy_values.append('"dummy"')
+    
+    return f"({', '.join(dummy_values)})"
+
 
 # this example shows minimal working program without any imports.
 #  this is especially useful for people building it in other programming languages
@@ -393,7 +422,7 @@ else:
 
     methodid = jpamb.parse_methodid(sys.argv[1])
 
-    is_vulnerable = static_analysis(methodid, jpamb.parse_input(args))
+    is_vulnerable = static_analysis(methodid)
 
     if is_vulnerable:
         dynamic_analysis(methodid)
