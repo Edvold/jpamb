@@ -25,10 +25,53 @@ jpamb.cases.Calls.callsAssertIf:(Z)V                         (false) -> assertio
 jpamb.cases.Calls.callsAssertIf:(Z)V                         (true) -> ok
 jpamb.cases.Calls.callsAssertIfWithTrue:()V                  () -> ok
 jpamb.cases.Calls.callsAssertTrue:()V                        () -> ok
+jpamb.cases.LengthAbstraction.assertProtects:(I)V            (-1) -> out of bounds
+jpamb.cases.LengthAbstraction.assertProtects:(I)V            (2) -> ok
+jpamb.cases.LengthAbstraction.assertProtects:(I)V            (4) -> assertion error
+jpamb.cases.LengthAbstraction.assertProtects:(I)V            (5) -> assertion error
+jpamb.cases.LengthAbstraction.fixedLength:(I)V               (-1) -> out of bounds
+jpamb.cases.LengthAbstraction.fixedLength:(I)V               (0) -> ok
+jpamb.cases.LengthAbstraction.fixedLength:(I)V               (4) -> ok
+jpamb.cases.LengthAbstraction.fixedLength:(I)V               (5) -> out of bounds
+jpamb.cases.LengthAbstraction.lastElement:(I)V               (-1) -> out of bounds
+jpamb.cases.LengthAbstraction.lastElement:(I)V               (0) -> ok
+jpamb.cases.LengthAbstraction.lastElement:(I)V               (5) -> ok
+jpamb.cases.LengthAbstraction.lastElement:(I)V               (6) -> out of bounds
+jpamb.cases.LengthAbstraction.lengthFromParam:(II)V          (0, 0) -> out of bounds
+jpamb.cases.LengthAbstraction.lengthFromParam:(II)V          (1, 0) -> ok
+jpamb.cases.LengthAbstraction.lengthFromParam:(II)V          (3, 2) -> ok
+jpamb.cases.LengthAbstraction.lengthFromParam:(II)V          (3, 3) -> out of bounds
+jpamb.cases.LengthAbstraction.pairAccess:(I)V                (-1) -> out of bounds
+jpamb.cases.LengthAbstraction.pairAccess:(I)V                (0) -> ok
+jpamb.cases.LengthAbstraction.pairAccess:(I)V                (2) -> ok
+jpamb.cases.LengthAbstraction.pairAccess:(I)V                (3) -> out of bounds
 jpamb.cases.Loops.forever:()V                                () -> *
 jpamb.cases.Loops.neverAsserts:()V                           () -> *
 jpamb.cases.Loops.neverDivides:()I                           () -> *
 jpamb.cases.Loops.terminates:()V                             () -> assertion error
+jpamb.cases.SignOps.add:(II)I                                (-2, -4) -> ok
+jpamb.cases.SignOps.add:(II)I                                (-3, 5) -> ok
+jpamb.cases.SignOps.add:(II)I                                (0, 0) -> ok
+jpamb.cases.SignOps.add:(II)I                                (0, 7) -> ok
+jpamb.cases.SignOps.add:(II)I                                (1, 2) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (-8, -2) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (-9, 3) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (0, 5) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (10, -5) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (10, 0) -> ok
+jpamb.cases.SignOps.divNoZero:(II)I                          (10, 2) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (-3, -4) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (-3, 5) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (0, -5) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (0, 7) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (1, 2) -> ok
+jpamb.cases.SignOps.mul:(II)I                                (3, -4) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (-3, -4) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (0, 0) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (0, 5) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (1, 2) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (5, -7) -> ok
+jpamb.cases.SignOps.sub:(II)I                                (5, 2) -> ok
 jpamb.cases.Simple.assertBoolean:(Z)V                        (false) -> assertion error
 jpamb.cases.Simple.assertBoolean:(Z)V                        (true) -> ok
 jpamb.cases.Simple.assertFalse:()V                           () -> assertion error
@@ -65,8 +108,10 @@ jpamb.cases.Strings.assertEqualDirectly:(Ljava/lang/String;)V ("Hello World") ->
 jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V ("Hello World!") -> ok
 jpamb.cases.Strings.assertEqualManually:(Ljava/lang/String;)V ("Hello World") -> assertion error
 jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'l', 2) -> ok
+jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'l', 3) -> assertion error
 jpamb.cases.Strings.assertIndexOfChar:(Ljava/lang/String;CI)V ("Hello World!", 'y', -1) -> ok
 jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hello", 0) -> ok
+jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hello", 1) -> assertion error
 jpamb.cases.Strings.assertIndexOfString:(Ljava/lang/String;Ljava/lang/String;I)V ("Hello World!", "Hey", -1) -> ok
 jpamb.cases.Strings.assertReturn:(Ljava/lang/String;)V       ("Hello World!") -> ok
 jpamb.cases.Strings.assertReturn:(Ljava/lang/String;)V       ("Hello World") -> assertion error
@@ -81,7 +126,21 @@ jpamb.cases.Strings.assertSubstring2:(II)V                   (0, 6) -> assertion
 jpamb.cases.Strings.assertSubstring2:(II)V                   (5, 4) -> out of bounds
 jpamb.cases.Tricky.collatz:(I)V                              (0) -> assertion error
 jpamb.cases.Tricky.collatz:(I)V                              (24) -> ok
-jpamb.cases.Vulnerable.simpleClean:(Ljava/lang/String;)V     ("anything") -> ok
-jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("admin OR 1=1") -> vulnerable
-jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("john") -> vulnerable
-jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1--", "") -> vulnerable
+jpamb.cases.Vulnerable.cleanAfterTaint:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.cleanPathTaken:(Ljava/lang/String;)V  ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.lostTaint:(Ljava/lang/String;)V       ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.multiConcat:(Ljava/lang/String;)V     ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.multiConcat:(Ljava/lang/String;)V     ("john") -> ok
+jpamb.cases.Vulnerable.notUsed:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> ok
+jpamb.cases.Vulnerable.sanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> ok
+jpamb.cases.Vulnerable.semiSanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> vulnerable
+jpamb.cases.Vulnerable.semiSanitizedInput:(Ljava/lang/String;Ljava/lang/String;)V ("john", "password") -> ok
+jpamb.cases.Vulnerable.simpleClean:(Ljava/lang/String;)V     ("admin' OR 1=1; -- ") -> ok
+jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.simpleTainted:(Ljava/lang/String;)V   ("john") -> ok
+jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("admin' OR 1=1; -- ", "") -> vulnerable
+jpamb.cases.Vulnerable.sqlInjection:(Ljava/lang/String;Ljava/lang/String;)V ("john", "password") -> ok
+jpamb.cases.Vulnerable.taintEverywhere:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.taintEverywhere:(Ljava/lang/String;)V ("john") -> ok
+jpamb.cases.Vulnerable.taintedPathTaken:(Ljava/lang/String;)V ("admin' OR 1=1; -- ") -> vulnerable
+jpamb.cases.Vulnerable.taintedPathTaken:(Ljava/lang/String;)V ("john") -> ok

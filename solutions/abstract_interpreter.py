@@ -805,7 +805,7 @@ def step_A_taint(states_at_pc: dict[PC, AState]) -> dict[PC, AState | str]:
                     nf.pc += 1
                     
                     if sql_tainted:
-                        succ(nf, status="SQL injection")
+                        succ(nf, status="vulnerable")
                     else:
                         if m.extension.return_type is not None:
                             nf.stack.push(TaintSet.safe())
@@ -1002,7 +1002,10 @@ def execute_A(methodid, input):
     heap_counter = 0
 
     for i, v in enumerate(input.values):
-        if ANALYSIS_MODE == "sign" and isinstance(v.type, jvm.Array):
+        if ANALYSIS_MODE == "taint":
+            av = TaintSet.tainted()
+        else:
+            if ANALYSIS_MODE == "sign" and isinstance(v.type, jvm.Array):
             elements = {}
             summary_content = BOT
             
