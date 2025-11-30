@@ -359,13 +359,14 @@ def dynamic_analysis(methodid):
     print(f"*;{infinite_loop_chance}")
     print(f"vulnerable;{vulnerable}")
 
-def static_analysis(methodid):
+def static_taint_analysis(methodid):
 
     found_vulnerability = False
 
     #Taint Analysis
     try:
         found_vulnerability = is_method_tainted(methodid)
+        a = 1
     except Exception as e:
         logger.warning(f"Taint Analysis failed: {e}")
     
@@ -421,17 +422,19 @@ else:
     classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
 
     methodid = jpamb.parse_methodid(sys.argv[1])
+    
+    if "Vulnerable" in classname:
+        is_vulnerable = static_taint_analysis(methodid)
 
-    is_vulnerable = static_analysis(methodid)
-
-    if is_vulnerable:
+        if is_vulnerable:
+            dynamic_analysis(methodid)
+        else:
+            print(f"ok;0%")
+            print(f"divide by zero;0%")
+            print(f"assertion error;0%")
+            print(f"out of bounds;0%")
+            print(f"null pointer;0%")
+            print(f"*;0%")
+            print(f"vulnerable;0%")
+    else:
         dynamic_analysis(methodid)
-    # else:
-    #     # guess 50% for all outcomes
-    #     print("ok;50%")
-    #     print("divide by zero;50%")
-    #     print("assertion error;50%")
-    #     print("out of bounds;50%")
-    #     print("null pointer;50%")
-    #     print("*;50%")
-    #     print("vulnerable;50%")

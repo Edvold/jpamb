@@ -664,7 +664,7 @@ def execute_A(methodid, input):
     seen: dict[tuple[jvm.AbsMethodID,int], AState | str] = { k0: start }
     frontier: dict[tuple[jvm.AbsMethodID,int], AState | str] = { k0: start }
 
-    STEPS_LIMIT = 100000
+    STEPS_LIMIT = 1_000_000
     steps = 0
 
     while frontier and steps < STEPS_LIMIT:
