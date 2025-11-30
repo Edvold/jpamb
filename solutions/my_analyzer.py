@@ -363,22 +363,22 @@ def static_taint_analysis(methodid):
 
     found_vulnerability = False
 
-    #Taint Analysis
+    #Abstract taint analysis
     try:
-        found_vulnerability = is_method_tainted(methodid)
-        a = 1
+        input_str = generate_dummy_input(methodid)
+        input = jpamb.parse_input(input_str)
+
+        found_vulnerability = abstract_taint_res(methodid, input)
+            
     except Exception as e:
-        logger.warning(f"Taint Analysis failed: {e}")
+        logger.warning(f"Taint Abstraction Analysis failed: {e}")
     
     if not found_vulnerability:
-        #Abstract taint analysis
+        #Taint Analysis
         try:
-            input_str = generate_dummy_input(methodid)
-            input = jpamb.parse_input(input_str)
-
-            found_vulnerability = abstract_taint_res(methodid, input)
+            found_vulnerability = is_method_tainted(methodid)
         except Exception as e:
-            logger.warning(f"Taint Abstraction analysis failed: {e}")
+            logger.warning(f"Taint Analysis failed: {e}")
 
     return found_vulnerability
 
@@ -429,12 +429,12 @@ else:
         if is_vulnerable:
             dynamic_analysis(methodid)
         else:
-            print(f"ok;0%")
-            print(f"divide by zero;0%")
-            print(f"assertion error;0%")
-            print(f"out of bounds;0%")
-            print(f"null pointer;0%")
-            print(f"*;0%")
+            print(f"ok;100%")
+            print(f"divide by zero;50%")
+            print(f"assertion error;50%")
+            print(f"out of bounds;50%")
+            print(f"null pointer;50%")
+            print(f"*;50%")
             print(f"vulnerable;0%")
     else:
         dynamic_analysis(methodid)

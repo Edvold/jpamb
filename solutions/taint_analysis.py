@@ -346,15 +346,6 @@ else:
         vulnerable = "0%"
     
 
-    # Output predictions for all 6 possible outcomes
-    print(f"ok;{ok_chance}")
-    print(f"divide by zero;{divide_by_zero_chance}")
-    print(f"assertion error;{assertion_error_chance}")
-    print(f"out of bounds;{out_of_bounds_chance}")
-    print(f"null pointer;{null_pointer_chance}")
-    print(f"*;{infinite_loop_chance}")
-    print(f"vulnerable;{vulnerable}")
-
 
 
     
