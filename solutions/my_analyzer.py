@@ -2,6 +2,8 @@
 import sys
 import re
 from interpreter import *
+from taint_analysis import is_method_tainted
+from abstract_interpreter import abstract_taint_res
 #from interpreter import current_pc_value
 import jpamb
 import random
@@ -357,9 +359,54 @@ def dynamic_analysis(methodid):
     print(f"*;{infinite_loop_chance}")
     print(f"vulnerable;{vulnerable}")
 
-def static_analysis(methodid):
-    # Placeholder static analysis
-    return random.choice([False, True])
+def static_taint_analysis(methodid):
+
+    found_vulnerability = False
+
+    #Abstract taint analysis
+    try:
+        input_str = generate_dummy_input(methodid)
+        input = jpamb.parse_input(input_str)
+
+        found_vulnerability = abstract_taint_res(methodid, input)
+            
+    except Exception as e:
+        logger.warning(f"Taint Abstraction Analysis failed: {e}")
+    
+    if not found_vulnerability:
+        #Taint Analysis
+        try:
+            found_vulnerability = is_method_tainted(methodid)
+        except Exception as e:
+            logger.warning(f"Taint Analysis failed: {e}")
+
+    return found_vulnerability
+
+def generate_dummy_input(methodid):
+    params = methodid.extension.params._elements
+    
+    if not params:
+        return "()"
+    
+    dummy_values = []
+    for param in params:
+        param_str = str(param)
+        if "String" in param_str:
+            dummy_values.append('"dummy"')
+        elif param_str == "I":  # int
+            dummy_values.append("0")
+        elif param_str == "Z":  # boolean
+            dummy_values.append("true")
+        elif param_str == "C":  # char
+            dummy_values.append("'a'")
+        elif param_str.startswith("["):  # array
+            elem_type = param_str[1:] 
+            dummy_values.append(f"([{elem_type}:])") 
+        else:
+            dummy_values.append('"dummy"')
+    
+    return f"({', '.join(dummy_values)})"
+
 
 # this example shows minimal working program without any imports.
 #  this is especially useful for people building it in other programming languages
@@ -375,17 +422,19 @@ else:
     classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
 
     methodid = jpamb.parse_methodid(sys.argv[1])
+    
+    if "Vulnerable" in classname:
+        is_vulnerable = static_taint_analysis(methodid)
 
-    is_vulnerable = static_analysis(methodid)
-
-    if is_vulnerable:
+        if is_vulnerable:
+            dynamic_analysis(methodid)
+        else:
+            print(f"ok;100%")
+            print(f"divide by zero;50%")
+            print(f"assertion error;50%")
+            print(f"out of bounds;50%")
+            print(f"null pointer;50%")
+            print(f"*;50%")
+            print(f"vulnerable;0%")
+    else:
         dynamic_analysis(methodid)
-    # else:
-    #     # guess 50% for all outcomes
-    #     print("ok;50%")
-    #     print("divide by zero;50%")
-    #     print("assertion error;50%")
-    #     print("out of bounds;50%")
-    #     print("null pointer;50%")
-    #     print("*;50%")
-    #     print("vulnerable;50%")

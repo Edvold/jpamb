@@ -8,6 +8,8 @@ from loguru import logger
 import tree_sitter
 import tree_sitter_java
 
+JAVA_LANGUAGE = tree_sitter.Language(tree_sitter_java.language())
+
 def to_ast(node):
     if node.type in {"{", "}", ";", "(", ")", "[", "]"}:
         return None
@@ -39,7 +41,7 @@ def find_ident_in_children(ast): #add case for method_invocation to model saniti
                 continue
     return idents
 
-def flows(ast, seen_methods, implicit_variables=set()):
+def flows(ast, seen_methods, simple_classname, tree, implicit_variables=set()):
     res = set()
     for node in ast:
         #logger.debug(node['type'])
@@ -62,31 +64,31 @@ def flows(ast, seen_methods, implicit_variables=set()):
                 if len(if_childs) > 2: # not an empty if
                     guard_expression = if_childs[1] #skipping the first child which is just an "if" node
                     new_implicit_vars = set.union(find_ident_in_children(guard_expression['children']), implicit_variables) #fix else if
-                    res = set.union(res, flows(if_childs[2]['children'], seen_methods, new_implicit_vars)) # not only if_childs[2]
+                    res = set.union(res, flows(if_childs[2]['children'], seen_methods, simple_classname, tree, new_implicit_vars)) # not only if_childs[2]
                     if len(if_childs) >= 5: # with else (how about more if elses? maybe goes back to here)
-                        res = set.union(res, flows(if_childs[4]['children'], seen_methods, new_implicit_vars))
+                        res = set.union(res, flows(if_childs[4]['children'], seen_methods, simple_classname, tree, new_implicit_vars))
                     # children will always exists
             case 'while_statement':
                 while_childs = node['children']
                 if len(while_childs) > 2: # not an empty while loop
                     guard_expression = while_childs[1] # skipping the "while" node
                     new_implicit_vars = set.union(find_ident_in_children(guard_expression['children']), implicit_variables)
-                    res = set.union(res, flows(while_childs[2]['children'], seen_methods, new_implicit_vars))
+                    res = set.union(res, flows(while_childs[2]['children'], seen_methods, simple_classname, tree, new_implicit_vars))
                 #logger.debug(node['text'])
             case 'for_statement':
                 for_childs = node['children']
                 if len(for_childs) > 4: # Thank you for being a normal human being (for loop with initialization, termination, increment and body)
                     # for_childs[0] is just a node with text "for"
-                    init_flows = flows(for_childs[1]['children'], implicit_variables) # checking for flows in the initialization expression
+                    init_flows = flows(for_childs[1]['children'], implicit_variables, simple_classname, tree) # checking for flows in the initialization expression
                     body_implicit_variables = set.union(find_ident_in_children(for_childs[2]['children']), implicit_variables) # checking for new implicit flow variables in termination expression
-                    update_expr_flows = flows(for_childs[3]['children'], seen_methods, body_implicit_variables)
-                    body_flows = flows(for_childs[4]['children'], seen_methods, body_implicit_variables) #two (or more) level flow from other expressions not added
+                    update_expr_flows = flows(for_childs[3]['children'], seen_methods, simple_classname, tree, body_implicit_variables)
+                    body_flows = flows(for_childs[4]['children'], seen_methods, simple_classname, tree, body_implicit_variables) #two (or more) level flow from other expressions not added
                     res = set.union(res, init_flows, update_expr_flows, body_flows)
                 elif len(for_childs) <= 4: # Who the fuck does this?
                     exit(f"For loop with {len(for_childs)} arguments")
             case 'expression_statement': #add update expression
                 #logger.debug(node)
-                res = set.union(res, flows(node['children'], seen_methods, implicit_variables))
+                res = set.union(res, flows(node['children'], seen_methods, simple_classname, tree, implicit_variables))
             case 'method_invocation':
                 method_name = node['children'][0]['text']
                 if method_name == "sink":
@@ -96,7 +98,7 @@ def flows(ast, seen_methods, implicit_variables=set()):
                         res.add((i, "sink"))
                 elif not method_name in seen_methods:
                     seen_methods.append(method_name)
-                    res = set.union(res, method_flow(method_name, seen_methods))
+                    res = set.union(res, method_flow(method_name, seen_methods, simple_classname, tree))
                 #method_args = node['children'][1]['text']
             case 'update_expression': # i++
                 updated_ident = node['children'][0]["text"]
@@ -129,19 +131,19 @@ def flows(ast, seen_methods, implicit_variables=set()):
                 #5th child is method_invocation
                 new_implicit_vars = set.union(implicit_variables, find_ident_in_children(for_each_childs[4]['children']))
                 #method_name = for_each_childs[4]['children'][0]['text']
-                method_flows = flows([for_each_childs[4]], seen_methods)
+                method_flows = flows([for_each_childs[4]], seen_methods, simple_classname, tree)
                 #logger.debug(method_flows)
                 # if 
                 # new_seen_methods = seen_methods.append(method_name)
                 # method_flows = method_flow(method_name, )
                 #6th child is the body
-                body_flows = flows(for_each_childs[5]['children'], seen_methods, new_implicit_vars)
+                body_flows = flows(for_each_childs[5]['children'], seen_methods, simple_classname, tree, new_implicit_vars)
                 res = set.union(res, body_flows)
                 res = set.union(res, method_flows)
                 #res = set.union(res, method_flows)
             case 'local_variable_declaration':
                 #logger.debug(node) # consists of type and variable declaration
-                res = set.union(res, flows(node['children'][1:], implicit_variables)) #variable declarator child. 1st child is type
+                res = set.union(res, flows(node['children'][1:], implicit_variables, simple_classname, tree)) #variable declarator child. 1st child is type
                 #{'type': 'local_variable_declaration', 'text': 'String u = t + s;', 'children':
                 #  [
                 #   {'type': 'type_identifier', 'text': 'String', 'children': []}, 
@@ -171,7 +173,7 @@ def flows(ast, seen_methods, implicit_variables=set()):
     return res
 
 
-def method_flow(method_name, seen_methods): #only works for method in the same class
+def method_flow(method_name, seen_methods, simple_classname, tree): #only works for method in the same class
     class_q = tree_sitter.Query(JAVA_LANGUAGE,
         f"""
         (class_declaration 
@@ -249,7 +251,7 @@ def method_flow(method_name, seen_methods): #only works for method in the same c
     # logger.debug("-------------------\n")
     # logger.debug(ast_body)
     #param_names.append("u")
-    flow = flows(ast_body['children'], seen_methods)
+    flow = flows(ast_body['children'], seen_methods, simple_classname, tree)
     #logger.debug(flow_dict)
     # make flows transitive
 
@@ -292,32 +294,8 @@ def method_flow(method_name, seen_methods): #only works for method in the same c
     
 
     return unsafe_flow
-# method to handle flow through method calls
-# remember to map variable names from calls to argument names
-# perhaps name variables as classname_methodname_identifier
-# maybe just flow to method invocations/method names
-# for recursive methods keep track of visited methods and stop if already seen (not sound) (maybe sound if also keep track of args)
 
-# this example shows minimal working program without any imports.
-#  this is especially useful for people building it in other programming languages
-if len(sys.argv) == 2 and sys.argv[1] == "info":
-    # Output the 5 required info lines
-    print("Taint analysis")
-    print("1.0")
-    print("Kageklubben")
-    print("SQL,taint")
-    print("no")  # Use any other string to share system info
-else:
-    # Get the method we need to analyze
-    classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
-    java_max_int = 2**32-1
-    java_min_int = -2**32
-
-    #class_taint_dict = {}
-
-    methodid = jpamb.parse_methodid(sys.argv[1])
-
-    JAVA_LANGUAGE = tree_sitter.Language(tree_sitter_java.language())
+def is_method_tainted(methodid):
     parser = tree_sitter.Parser(JAVA_LANGUAGE)
 
 
@@ -330,10 +308,29 @@ else:
     method_name = methodid.extension.name
 
 
-    flow = method_flow(method_name, [method_name])
+    flow = method_flow(method_name, [method_name], simple_classname, tree)
     #logger.debug(flow)
-    
+    return len(flow) > 0 
 
+# method to handle flow through method calls
+# remember to map variable names from calls to argument names
+# perhaps name variables as classname_methodname_identifier
+# maybe just flow to method invocations/method names
+# for recursive methods keep track of visited methods and stop if already seen (not sound) (maybe sound if also keep track of args)
+
+# this example shows minimal working program without any imports.
+#  this is especially useful for people building it in other programming languages
+if len(sys.argv) == 2 and sys.argv[1] == "info":
+    a = 1
+else:
+    # Get the method we need to analyze
+    classname, methodname, args = re.match(r"(.*)\.(.*):(.*)", sys.argv[1]).groups()
+    java_max_int = 2**32-1
+    java_min_int = -2**32
+
+    #class_taint_dict = {}
+
+    methodid = jpamb.parse_methodid(sys.argv[1])
 
     ok_chance = "50%"
     divide_by_zero_chance = "50%"
@@ -343,20 +340,11 @@ else:
     infinite_loop_chance = "50%"
     vulnerable = "50%"
 
-    if len(flow) > 0:
+    if is_method_tainted(methodid):
         vulnerable = "100%"
     else:
         vulnerable = "0%"
     
-
-    # Output predictions for all 6 possible outcomes
-    print(f"ok;{ok_chance}")
-    print(f"divide by zero;{divide_by_zero_chance}")
-    print(f"assertion error;{assertion_error_chance}")
-    print(f"out of bounds;{out_of_bounds_chance}")
-    print(f"null pointer;{null_pointer_chance}")
-    print(f"*;{infinite_loop_chance}")
-    print(f"vulnerable;{vulnerable}")
 
 
 
