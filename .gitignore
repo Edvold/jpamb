@@ -26,3 +26,7 @@ build/
 leananalyzer
 
 result
+
+src/main/java/jpamb/cases/*_safe.java
+target/classes/jpamb/cases/*_safe.class
+target/decompiled/jpamb/cases/*_safe.json
